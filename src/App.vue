@@ -1,5 +1,7 @@
 <template>
   <div>
+    <div v-if="user">{{ user.displayName }}</div>
+
     <a href="https://vitejs.dev" target="_blank">
       <img src="/vite.svg" class="logo" alt="Vite logo" />
     </a>
@@ -8,17 +10,22 @@
     </a>
     <button @click="getData">Get Data</button>
 
-    <button @click="onSignIn">Sign In</button>
-    <button @click="onSignOut">Sign Out</button>
+    <button v-if="!user" @click="onSignIn">Sign In</button>
+    <button v-else @click="onSignOut">Sign Out</button>
   </div>
 </template>
 
 <script setup>
+  import { ref, computed } from 'vue'
+  import { useStore } from 'vuex'
   import { initializeApp } from 'firebase/app'
   import { getAnalytics } from 'firebase/analytics'
   import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth'
   import { getDatabase, ref as dbRef, set as dbSet, onValue } from 'firebase/database'
 
+  const store = useStore()
+  const user = computed(() => store.state.user)
+  
   const firebaseConfig = {
     apiKey: process.env.FIREBASE_API_KEY,
     authDomain: process.env.FIREBASE_AUTH_DOMAIN,
@@ -34,7 +41,20 @@
   const analytics = getAnalytics(app)
 
   const auth = getAuth(app)
-  console.log(auth)
+  // console.log(auth)
+  // console.log(auth.currentUser)
+
+  auth.onAuthStateChanged(user => {
+    store.commit(`setUser`, user)
+  })
+
+  if (auth.currentUser) {
+    // store.commit(`setUser`, auth.currentUser)
+  }
+  
+  // const user = ref(auth.currentUser ? auth.currentUser : undefined)
+  // console.log(user.value)
+  
 
   const provider = new GoogleAuthProvider()
 
@@ -62,6 +82,7 @@
     signInWithPopup(auth, provider)
     .then(result => {
       console.log(result)
+      // store.commit(`setUser`, result.user)
     })
     .catch(err => {
       console.log(err)
@@ -72,6 +93,7 @@
     signOut(auth)
       .then(result => {
         console.log(result)
+        // store.commit(`setUser`, false)
       })
       .catch(err => {
         console.log(err)

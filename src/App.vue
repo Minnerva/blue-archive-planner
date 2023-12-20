@@ -6,6 +6,7 @@
     <a href="https://vuejs.org/" target="_blank">
       <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
     </a>
+    <button @click="getData">Get Data</button>
 
     <button @click="onSignIn">Sign In</button>
     <button @click="onSignOut">Sign Out</button>
@@ -16,6 +17,7 @@
   import { initializeApp } from 'firebase/app'
   import { getAnalytics } from 'firebase/analytics'
   import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth'
+  import { getDatabase, ref as dbRef, set as dbSet, onValue } from 'firebase/database'
 
   const firebaseConfig = {
     apiKey: process.env.FIREBASE_API_KEY,
@@ -24,7 +26,8 @@
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
     appId: process.env.FIREBASE_APP_ID,
-    measurementId: process.env.FIREBASE_MEASUREMENT_ID
+    measurementId: process.env.FIREBASE_MEASUREMENT_ID,
+    databaseURL: `https://gacha-tracker-online-default-rtdb.asia-southeast1.firebasedatabase.app/`
   }
 
   const app = initializeApp(firebaseConfig)
@@ -34,6 +37,26 @@
   console.log(auth)
 
   const provider = new GoogleAuthProvider()
+
+  const database = getDatabase(app)
+
+  if (auth.currentUser) {
+    dbSet(dbRef(database, `/users/${auth.currentUser.uid}`), {
+      in_game_name: `Minnerva`,
+      date: {
+        first_name: `A`,
+        last_name: [`T`, `B`]
+      }
+    })
+  }
+
+  const getData = () => {
+    const starCountRef = dbRef(database, `/users/${auth.currentUser.uid}/date/last_name`)
+    onValue(starCountRef, snapshot => {
+      const data = snapshot.val()
+      console.log(data)
+    })
+  }
 
   const onSignIn = () => {
     signInWithPopup(auth, provider)

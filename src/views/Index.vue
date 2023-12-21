@@ -6,7 +6,17 @@
 <script setup>
   import { ref, reactive, onMounted } from 'vue'
   import dayjs from 'dayjs'
-  import Chart from 'chart.js/auto'
+  // import Chart from 'chart.js/auto'
+  import { Chart, LineController, LineElement, PointElement, CategoryScale, LinearScale, Tooltip } from 'chart.js'
+
+  Chart.register(
+    LineController,
+    LineElement,
+    PointElement,
+    CategoryScale,
+    LinearScale,
+    Tooltip
+  )
 
   const chart = ref(null)
   const date = reactive(dayjs())
@@ -28,7 +38,9 @@
         labels: labels,
         datasets: [
           {
-            data: data
+            data: data,
+            borderColor: `#A00`,
+            backgroundColor: `#00A`
           }
         ]
       },

@@ -1,7 +1,7 @@
 <template>
   <Nav></Nav>
-
   <router-view></router-view>
+  <!-- <Footer></Footer> -->
 </template>
 
 <script setup>
@@ -12,6 +12,7 @@
   import { getDatabase, ref as dbRef, set as dbSet, onValue } from 'firebase/database'
 
   import Nav from '@/components/Nav.vue'
+  import Footer from '@/components/Footer.vue'
 
   const store = useStore()
   

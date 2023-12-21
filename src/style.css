@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind copmonents;
 @tailwind utilities;
+
+html,
+body,
+#app {
+  height: 100%;
+}

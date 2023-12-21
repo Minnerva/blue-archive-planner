@@ -2,20 +2,6 @@
   <Nav></Nav>
 
   <router-view></router-view>
-  <!-- <div>
-    <div v-if="user">{{ user.displayName }}</div>
-
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-    <button @click="getData">Get Data</button>
-
-    <button v-if="!user" @click="onSignIn">Sign In</button>
-    <button v-else @click="onSignOut">Sign Out</button>
-  </div> -->
 </template>
 
 <script setup>
@@ -28,7 +14,6 @@
   import Nav from '@/components/Nav.vue'
 
   const store = useStore()
-  // const firebase = computed(() => store.state.firebase)
   
   const firebaseConfig = {
     apiKey: process.env.FIREBASE_API_KEY,

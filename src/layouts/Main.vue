@@ -12,7 +12,6 @@
 
   const router = useRouter()
 
-  console.log(getUrl())
   const onBack = () => {
     router.back()
   }

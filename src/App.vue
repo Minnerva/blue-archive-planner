@@ -1,4 +1,6 @@
 <template>
+  <Nav></Nav>
+
   <router-view></router-view>
   <!-- <div>
     <div v-if="user">{{ user.displayName }}</div>
@@ -17,15 +19,16 @@
 </template>
 
 <script setup>
-  import { ref, computed } from 'vue'
   import { useStore } from 'vuex'
   import { initializeApp } from 'firebase/app'
   import { getAnalytics } from 'firebase/analytics'
-  import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth'
+  import { getAuth } from 'firebase/auth'
   import { getDatabase, ref as dbRef, set as dbSet, onValue } from 'firebase/database'
 
+  import Nav from '@/components/Nav.vue'
+
   const store = useStore()
-  const user = computed(() => store.state.user)
+  // const firebase = computed(() => store.state.firebase)
   
   const firebaseConfig = {
     apiKey: process.env.FIREBASE_API_KEY,
@@ -35,30 +38,22 @@
     messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
     appId: process.env.FIREBASE_APP_ID,
     measurementId: process.env.FIREBASE_MEASUREMENT_ID,
-    databaseURL: `https://gacha-tracker-online-default-rtdb.asia-southeast1.firebasedatabase.app/`
+    databaseURL: process.env.FIREBASE_DATABASE_URL
   }
 
   const app = initializeApp(firebaseConfig)
-  const analytics = getAnalytics(app)
+  store.commit(`setFirebase`, app)
+
+  getAnalytics(app)
 
   const auth = getAuth(app)
-  // console.log(auth)
-  // console.log(auth.currentUser)
+  store.commit(`setAuth`, auth)
 
   auth.onAuthStateChanged(user => {
+    store.commit(`setAuth`, auth)
     store.commit(`setUser`, user)
   })
-
-  if (auth.currentUser) {
-    // store.commit(`setUser`, auth.currentUser)
-  }
   
-  // const user = ref(auth.currentUser ? auth.currentUser : undefined)
-  // console.log(user.value)
-  
-
-  const provider = new GoogleAuthProvider()
-
   const database = getDatabase(app)
 
   if (auth.currentUser) {
@@ -78,41 +73,4 @@
       console.log(data)
     })
   }
-
-  const onSignIn = () => {
-    signInWithPopup(auth, provider)
-    .then(result => {
-      console.log(result)
-      // store.commit(`setUser`, result.user)
-    })
-    .catch(err => {
-      console.log(err)
-    })
-  }
-
-  const onSignOut = () => {
-    signOut(auth)
-      .then(result => {
-        console.log(result)
-        // store.commit(`setUser`, false)
-      })
-      .catch(err => {
-        console.log(err)
-      })
-  }
 </script>
-
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
-</style>

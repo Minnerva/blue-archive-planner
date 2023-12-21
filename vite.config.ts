@@ -1,6 +1,5 @@
 import path from 'path'
-import { fileURLToPath } from 'url'
-import { defineConfig } from 'vite'
+import { defineConfig, splitVendorChunkPlugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import EnvironmentPlugin from 'vite-plugin-environment'
 import 'dotenv/config'
@@ -19,7 +18,8 @@ export default defineConfig({
       `FIREBASE_APP_ID`,
       `FIREBASE_MEASUREMENT_ID`,
       `FIREBASE_DATABASE_URL`
-    ])
+    ]),
+    splitVendorChunkPlugin()
   ],
   resolve: {
     alias: {

@@ -1,6 +1,20 @@
 <template>
   <div class="text-3xl font-bold text-center">{{ date.format(`YYYY-MM`) }}</div>
-  <canvas ref="chart"></canvas>
+  
+  <div class="flex justify-center">
+    <div class="w-full max-w-3xl h-72">
+      <canvas ref="chart"></canvas>
+    </div>
+  </div>
+
+  <div class="mt-3 border border-gray-300 rounded-xl">
+    <div class="h-8 bg-slate-300 rounded-t-xl"></div>
+    <div class="bg-white rounded-b-xl">
+      <div class="p-2">
+        Hello World
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -45,6 +59,8 @@
         ]
       },
       options: {
+        responsive: true,
+        maintainAspectRatio: false,
         plugins: {
           legend: {
             display: false
@@ -60,6 +76,5 @@
         }
       }
     })
-    // console.log(c)
   })
 </script>

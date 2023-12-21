@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <router-view></router-view>
+  <!-- <div>
     <div v-if="user">{{ user.displayName }}</div>
 
     <a href="https://vitejs.dev" target="_blank">
@@ -12,7 +13,7 @@
 
     <button v-if="!user" @click="onSignIn">Sign In</button>
     <button v-else @click="onSignOut">Sign Out</button>
-  </div>
+  </div> -->
 </template>
 
 <script setup>

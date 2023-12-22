@@ -28,6 +28,7 @@
   }
 
   const app = initializeApp(firebaseConfig)
+  console.log(app)
   store.commit(`setFirebase`, app)
 
   getAnalytics(app)
@@ -38,11 +39,10 @@
   auth.onAuthStateChanged(user => {
     store.commit(`setAuth`, auth)
     store.commit(`setUser`, user)
-  })
-  
-  const database = getDatabase(app)
 
-  if (auth.currentUser) {
+    const database = getDatabase(app)
+
+    // TODO: update to check if new user
     dbSet(dbRef(database, `/users/${auth.currentUser.uid}`), {
       in_game_name: `Minnerva`,
       date: {
@@ -50,8 +50,8 @@
         last_name: [`T`, `B`]
       }
     })
-  }
-
+  })
+  
   const getData = () => {
     const starCountRef = dbRef(database, `/users/${auth.currentUser.uid}/date/last_name`)
     onValue(starCountRef, snapshot => {

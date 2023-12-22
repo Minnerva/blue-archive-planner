@@ -11,7 +11,57 @@
     <div class="h-8 bg-slate-300 rounded-t-xl"></div>
     <div class="bg-white rounded-b-xl">
       <div class="p-2">
-        Hello World
+        <label>
+          Year: 
+          <select v-model="form.year">
+            <option
+              v-for="year in options.years"
+              :value="year.value"
+            >
+              {{ year.label }}
+            </option>
+          </select>
+        </label>
+
+        <label>
+          Month: 
+          <select v-model="form.month">
+            <option
+              v-for="month in options.months"
+              :value="month.value"
+            >
+              {{ month.label }}
+            </option>
+          </select>
+        </label>
+
+        <label>
+          Date: 
+          <select v-model="form.date">
+            <option
+              v-for="date in options.dates"
+              :value="date.value"
+            >
+              {{ date.label }}
+            </option>
+          </select>
+        </label>
+
+        <br>
+
+        <label>
+          Pyroxenes: 
+          <input type="number" v-model="form.pyroxene">
+        </label>
+
+        <label>
+          Free Pulls (Ticket):
+          <input type="number" v-model="form.free_pull">
+        </label>
+
+        <br>
+
+        <button @click="onSave">Save</button>
       </div>
     </div>
   </div>
@@ -19,9 +69,15 @@
 
 <script setup>
   import { ref, reactive, onMounted } from 'vue'
+  import { useStore } from 'vuex'
   import dayjs from 'dayjs'
   // import Chart from 'chart.js/auto'
   import { Chart, LineController, LineElement, PointElement, CategoryScale, LinearScale, Tooltip } from 'chart.js'
+  import { getDatabase, ref as dbRef, set as dbSet, onValue } from 'firebase/database'
+
+  // TODO: Switch to different month/year
+  // TODO: Placeholder of the recent record
+  // TODO: if no value provide, use old value record (same as the placeholder)
 
   Chart.register(
     LineController,
@@ -32,10 +88,74 @@
     Tooltip
   )
 
+  const store = useStore()
+  
   const chart = ref(null)
   const date = reactive(dayjs())
 
+  const auth = reactive(store.state.auth)
+  const current_year = dayjs().year()
+  const current_month = dayjs().month() + 1 // due to month start at 0 to 11
+  const current_day = dayjs().date()
   const daysInMonth = date.daysInMonth()
+
+  const database = getDatabase(store.state.firebase)
+
+  const form = ref({
+    year: 0,
+    month: 0,
+    date: 0,
+    pyroxene: 0,
+    free_pull: 0
+  })
+  const options = ref({
+    years: [],
+    months: [],
+    dates: []
+  })
+
+  for (let i = current_year; i >= 2022; i--) {
+    let year = {
+      value: i,
+      label: i
+    }
+    options.value.years.push(year)
+
+    if (current_year === i) form.value.year = i
+  }
+
+  for (let i = 1; i <= 12; i++) {
+    let month = {
+      value: i,
+      label: i <= 9 ? `0${i}` : i
+    }
+    options.value.months.push(month)
+
+    if (current_month === i) form.value.month = i
+  }
+
+  for (let i = 1; i <= daysInMonth; i++) {
+    let optionDate = {
+      value: i,
+      label: i <= 9 ? `0${i}` : i
+    }
+    options.value.dates.push(optionDate)
+
+    if (current_day === i) form.value.date = i
+  }
+
+  const onSave = () => {
+    if (auth.currentUser) {
+      const saveDate = dayjs(`${form.value.year}-${form.value.month}-${form.value.date}`)
+      const data = {
+        pyroxene: form.value.pyroxene,
+        free_pull: form.value.free_pull
+      }
+
+      dbSet(dbRef(database, `/blue-archive-currencies/${auth.currentUser.uid}/${saveDate.format(`YYYY-MM`)}`), data)
+    }
+  }
+
   const labels = []
   const data = []
 

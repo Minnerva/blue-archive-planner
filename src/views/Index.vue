@@ -1,5 +1,9 @@
 <template>
-  <div class="text-3xl font-bold text-center">{{ date.format(`YYYY-MM`) }}</div>
+  <div class="text-3xl font-bold text-center">
+    <span @click="onPrev">prev   </span>
+    <span>{{ date.format(`YYYY-MM`) }}</span>
+    <span @click="onNext">   next</span>
+  </div>
   
   <div class="flex justify-center">
     <div class="w-full max-w-3xl h-72">
@@ -76,8 +80,8 @@
   import { getDatabase, ref as dbRef, set as dbSet, onValue } from 'firebase/database'
   import { DB_PATH_BLUE_ARCHIVE_CURRENCY, find } from '@/utils'
 
-  // TODO: Switch to different month/year
-  // TODO: Update the Chart
+  // TODO: Update user data to store the latest currency (for prediction)
+  // TODO: Prediction line
 
   Chart.register(
     LineController,
@@ -92,14 +96,14 @@
   
   const chart_id = `chart`
   let $chart = null
-  const date = reactive(dayjs())
+  const date = ref(dayjs())
   const currencies = ref([])
 
   const auth = reactive(store.state.auth)
   const current_year = dayjs().year()
   const current_month = dayjs().month() + 1 // due to month start at 0 to 11
   const current_day = dayjs().date()
-  const daysInMonth = date.daysInMonth()
+  const daysInMonth = date.value.daysInMonth()
   const latestData = ref({
     pyroxene: 0,
     free_pull: 0
@@ -188,25 +192,51 @@
     const dbPath = `${DB_PATH_BLUE_ARCHIVE_CURRENCY}/${auth.currentUser.uid}/${year}-${month}`
     const dbData = dbRef(database, dbPath)
     onValue(dbData, snapshot => {
-      const data = snapshot.val()
+      const data = snapshot.val() || []
+      data.sort((a,b) => {
+        if (a.day > b.day) return 1
+        else if (a.day < b.day) return -1
+        else return 0
+      })
 
-      if (data) {
-        data.sort((a,b) => {
-          if (a.day > b.day) return 1
-          else if (a.day < b.day) return -1
-          else return 0
-        })
-
-        if (data.length) {
-          latestData.value = {...data.slice(-1)[0]}
-        }
-
-        currencies.value = [...data]
-        updateChartData()
+      if (data.length) {
+        latestData.value = {...data.slice(-1)[0]}
       }
+
+      currencies.value = [...data]
+      updateChartData()
     })
   }
   setCurrenyDataFromYearMonth(current_year, current_month)
+
+  const onPrev = () => {
+    let toYear = date.value.year()
+    let toMonth = date.value.month()+1-1 // +1 due to month start at 0, -1 because wantting to go to previous month
+
+    if (toMonth <= 0) {
+      toMonth = `12`
+      toYear--
+    }
+
+    changeYearMonth(toYear, toMonth)
+  }
+
+  const onNext = () => {
+    let toYear = date.value.year()
+    let toMonth = date.value.month()+1+1 // +1 due to month start at 0, +1 because wantting to go to next month
+
+    if (toMonth > 12) {
+      toMonth = 1
+      toYear++
+    }
+
+    changeYearMonth(toYear, toMonth)
+  }
+
+  const changeYearMonth = (year, month) => {
+    date.value = dayjs(`${year}-${month}-01`)
+    setCurrenyDataFromYearMonth(year, month)
+  }
 
   const updateChartData = () => {
     const labels = []
@@ -214,7 +244,7 @@
     
     for (let i = 1; i <= daysInMonth; i++) {
       const day = `${i}`.length === 1 ? `0${i}` : i
-      const plotDay = `${date.format(`YYYY-MM`)}-${day}`
+      const plotDay = `${date.value.format(`YYYY-MM`)}-${day}`
       labels.push(plotDay)
       
       const currency = find(currencies.value, `day`, plotDay)

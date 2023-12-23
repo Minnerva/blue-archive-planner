@@ -74,6 +74,7 @@
   // import Chart from 'chart.js/auto'
   import { Chart, LineController, LineElement, PointElement, CategoryScale, LinearScale, Tooltip } from 'chart.js'
   import { getDatabase, ref as dbRef, set as dbSet, onValue } from 'firebase/database'
+  import { DB_PATH_BLUE_ARCHIVE_CURRENCY } from '@/utils'
 
   // TODO: Switch to different month/year
   // TODO: Placeholder of the recent record
@@ -147,17 +148,26 @@
   const onSave = () => {
     if (auth.currentUser) {
       const saveDate = dayjs(`${form.value.year}-${form.value.month}-${form.value.date}`)
-      const data = {
-        pyroxene: form.value.pyroxene,
-        free_pull: form.value.free_pull
-      }
 
-      dbSet(dbRef(database, `/blue-archive-currencies/${auth.currentUser.uid}/${saveDate.format(`YYYY-MM`)}`), data)
+      dbSet(dbRef(database, `/blue-archive-currencies/${auth.currentUser.uid}/${saveDate.format(`YYYY-MM`)}`), form.value)
     }
   }
 
   const labels = []
   const data = []
+  
+  // const dbUser = dbRef(database, dbPath)
+  // onValue(dbUser, snapshot => {
+  //   const user = snapshot.val()
+  //   console.log(user)
+  //   if (!user) {
+  //     dbSet(dbRef(database, dbPath), {
+  //       in_game_name: ``,
+  //       email: auth.currentUser.email,
+  //       active: false
+  //     })
+  //   }
+  // })
 
   for (let i = 1; i <= daysInMonth; i++) {
     const day = `${i}`.length === 1 ? `0${i}` : i

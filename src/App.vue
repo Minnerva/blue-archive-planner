@@ -8,7 +8,7 @@
   import { useStore } from 'vuex'
   import { initializeApp } from 'firebase/app'
   import { getAnalytics } from 'firebase/analytics'
-  import { getAuth } from 'firebase/auth'
+  import { getAuth, onAuthStateChanged } from 'firebase/auth'
   import { getDatabase, ref as dbRef, set as dbSet, onValue } from 'firebase/database'
 
   import Nav from '@/components/Nav.vue'
@@ -28,7 +28,6 @@
   }
 
   const app = initializeApp(firebaseConfig)
-  console.log(app)
   store.commit(`setFirebase`, app)
 
   getAnalytics(app)
@@ -38,25 +37,29 @@
 
   auth.onAuthStateChanged(user => {
     store.commit(`setAuth`, auth)
-    store.commit(`setUser`, user)
+    
+    if (!auth.currentUser) {
+      console.log(`Sign Out`)
+      store.commit(`setAuth`, false)
+      store.commit(`setUser`, false)
+    } else {
+      const dbPath = `/users/${auth.currentUser.uid}`
+      const database = getDatabase(app)
 
-    const database = getDatabase(app)
+      const dbUser = dbRef(database, dbPath)
+      onValue(dbUser, snapshot => {
+        const user = snapshot.val()
+        
+        if (!user) {
+          dbSet(dbRef(database, dbPath), {
+            in_game_name: ``,
+            email: auth.currentUser.email,
+            active: false
+          })
+        }
 
-    // TODO: update to check if new user
-    dbSet(dbRef(database, `/users/${auth.currentUser.uid}`), {
-      in_game_name: `Minnerva`,
-      date: {
-        first_name: `A`,
-        last_name: [`T`, `B`]
-      }
-    })
+        store.commit(`setUser`, user)
+      })
+    }
   })
-  
-  const getData = () => {
-    const starCountRef = dbRef(database, `/users/${auth.currentUser.uid}/date/last_name`)
-    onValue(starCountRef, snapshot => {
-      const data = snapshot.val()
-      console.log(data)
-    })
-  }
 </script>

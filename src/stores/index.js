@@ -11,10 +11,10 @@ export default createStore({
       state.firebase = firebase
     },
     setAuth (state, auth) {
-      state.auth = auth
+      state.auth = auth ? {...auth} : false
     },
     setUser (state, user) {
-      state.user = user
+      state.user = user ? {...user} : false
     }
   }
 })

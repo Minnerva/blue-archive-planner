@@ -51,12 +51,12 @@
 
         <label>
           Pyroxenes: 
-          <input type="number" v-model="form.pyroxene">
+          <input type="number" v-model="form.pyroxene" :placeholder="latestData.pyroxene">
         </label>
 
         <label>
           Free Pulls (Ticket):
-          <input type="number" v-model="form.free_pull">
+          <input type="number" v-model="form.free_pull" :placeholder="latestData.free_pull">
         </label>
 
         <br>
@@ -77,7 +77,6 @@
   import { DB_PATH_BLUE_ARCHIVE_CURRENCY } from '@/utils'
 
   // TODO: Switch to different month/year
-  // TODO: Placeholder of the recent record
   // TODO: if no value provide, use old value record (same as the placeholder)
 
   Chart.register(
@@ -100,13 +99,17 @@
   const current_month = dayjs().month() + 1 // due to month start at 0 to 11
   const current_day = dayjs().date()
   const daysInMonth = date.daysInMonth()
+  const latestData = ref({
+    pyroxene: 0,
+    free_pull: 0
+  })
 
   const database = getDatabase(store.state.firebase)
 
   const form = ref({
     date: ``,
-    pyroxene: 0,
-    free_pull: 0
+    pyroxene: undefined,
+    free_pull: undefined
   })
   const options = ref({
     years: [],
@@ -154,6 +157,15 @@
         day: saveDate.format(`YYYY-MM-DD`)
       }
 
+      console.log(latestData)
+      if (!formData.pyroxene) {
+        formData.pyroxene = latestData.value ? latestData.value.pyroxene : 0
+      }
+
+      if (!formData.free_pull) {
+        formData.free_pull = latestData.value ? latestData.value.free_pull : 0
+      }
+
       let currentDateindex = -1
       currencies.value.forEach((currency, index) => {
         if (currency.day === saveDate.format(`YYYY-MM-DD`)) {
@@ -180,7 +192,18 @@
     onValue(dbData, snapshot => {
       const data = snapshot.val()
       console.log(data)
+
       if (data) {
+        data.sort((a,b) => {
+          if (a.day > b.day) return 1
+          else if (a.day < b.day) return -1
+          else return 0
+        })
+
+        if (data.length) {
+          latestData.value = {...data.slice(-1)[0]}
+        }
+
         currencies.value = [...data]
       }
     })

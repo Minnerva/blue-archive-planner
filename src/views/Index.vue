@@ -3,7 +3,7 @@
   
   <div class="flex justify-center">
     <div class="w-full max-w-3xl h-72">
-      <canvas ref="chart"></canvas>
+      <canvas :id="chart_id"></canvas>
     </div>
   </div>
 
@@ -74,10 +74,10 @@
   // import Chart from 'chart.js/auto'
   import { Chart, LineController, LineElement, PointElement, CategoryScale, LinearScale, Tooltip } from 'chart.js'
   import { getDatabase, ref as dbRef, set as dbSet, onValue } from 'firebase/database'
-  import { DB_PATH_BLUE_ARCHIVE_CURRENCY } from '@/utils'
+  import { DB_PATH_BLUE_ARCHIVE_CURRENCY, find } from '@/utils'
 
   // TODO: Switch to different month/year
-  // TODO: if no value provide, use old value record (same as the placeholder)
+  // TODO: Update the Chart
 
   Chart.register(
     LineController,
@@ -90,7 +90,8 @@
 
   const store = useStore()
   
-  const chart = ref(null)
+  const chart_id = `chart`
+  let $chart = null
   const date = reactive(dayjs())
   const currencies = ref([])
 
@@ -157,7 +158,6 @@
         day: saveDate.format(`YYYY-MM-DD`)
       }
 
-      console.log(latestData)
       if (!formData.pyroxene) {
         formData.pyroxene = latestData.value ? latestData.value.pyroxene : 0
       }
@@ -180,18 +180,15 @@
         currencies.value.splice(currentDateindex, 1, formData)
       }
       dbSet(dbRef(database, dbPath), currencies.value)
+      updateChartData()
     }
   }
 
-  const labels = []
-  const data = []
-  
   const setCurrenyDataFromYearMonth = (year, month) => {
     const dbPath = `${DB_PATH_BLUE_ARCHIVE_CURRENCY}/${auth.currentUser.uid}/${year}-${month}`
     const dbData = dbRef(database, dbPath)
     onValue(dbData, snapshot => {
       const data = snapshot.val()
-      console.log(data)
 
       if (data) {
         data.sort((a,b) => {
@@ -205,27 +202,40 @@
         }
 
         currencies.value = [...data]
+        updateChartData()
       }
     })
   }
   setCurrenyDataFromYearMonth(current_year, current_month)
 
-  for (let i = 1; i <= daysInMonth; i++) {
-    const day = `${i}`.length === 1 ? `0${i}` : i
-    labels.push(`${date.format(`YYYY-MM`)}-${day}`)
-    data.push(i)
+  const updateChartData = () => {
+    const labels = []
+    const data = []
+    
+    for (let i = 1; i <= daysInMonth; i++) {
+      const day = `${i}`.length === 1 ? `0${i}` : i
+      const plotDay = `${date.format(`YYYY-MM`)}-${day}`
+      labels.push(plotDay)
+      
+      const currency = find(currencies.value, `day`, plotDay)
+      data.push(currency ? currency.pyroxene + (currency.free_pull*120) : null)
+    }
+
+    $chart.data.labels = labels
+    $chart.data.datasets[0].data = data
+    $chart.update()
   }
 
-  onMounted(() => {
-    const c = new Chart(chart.value, {
+  const applyChart = () => {
+    $chart = new Chart(document.querySelector(`#${chart_id}`), {
       type: `line`,
       data: {
-        labels: labels,
+        labels: [],
         datasets: [
           {
-            data: data,
-            borderColor: `#A00`,
-            backgroundColor: `#00A`
+            data: [],
+            borderColor: `#00D8FB`,
+            backgroundColor: `#FFFFFF`
           }
         ]
       },
@@ -243,9 +253,18 @@
               autoSkip: true,
               maxTicksLimit: 10
             }
+          },
+          y: {
+            beginAtZero: true
           }
         }
       }
     })
+  }
+  
+
+  onMounted(() => {
+    applyChart()
+    updateChartData()
   })
 </script>

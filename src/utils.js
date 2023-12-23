@@ -7,3 +7,21 @@ export const getUrl = (path) => {
   
   return `${process.env.BASE}${path || ``}`
 }
+
+export const findIndex = (array, key, value) => {
+  let index = -1
+
+  array.forEach((item, i) => {
+    if (item[key] === value) {
+      index = i
+      return i
+    }
+  })
+
+  return index
+}
+
+export const find = (array, key, value) => {
+  const index = findIndex(array, key, value)
+  return index > -1 ? array[index] : false
+}

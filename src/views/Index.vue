@@ -93,6 +93,7 @@
   
   const chart = ref(null)
   const date = reactive(dayjs())
+  const currencies = ref([])
 
   const auth = reactive(store.state.auth)
   const current_year = dayjs().year()
@@ -103,9 +104,7 @@
   const database = getDatabase(store.state.firebase)
 
   const form = ref({
-    year: 0,
-    month: 0,
-    date: 0,
+    date: ``,
     pyroxene: 0,
     free_pull: 0
   })
@@ -148,26 +147,45 @@
   const onSave = () => {
     if (auth.currentUser) {
       const saveDate = dayjs(`${form.value.year}-${form.value.month}-${form.value.date}`)
+      const dbPath = `${DB_PATH_BLUE_ARCHIVE_CURRENCY}/${auth.currentUser.uid}/${saveDate.format(`YYYY-MM`)}`
+      const formData = {
+        pyroxene: form.value.pyroxene,
+        free_pull: form.value.free_pull,
+        day: saveDate.format(`YYYY-MM-DD`)
+      }
 
-      dbSet(dbRef(database, `/blue-archive-currencies/${auth.currentUser.uid}/${saveDate.format(`YYYY-MM`)}`), form.value)
+      let currentDateindex = -1
+      currencies.value.forEach((currency, index) => {
+        if (currency.day === saveDate.format(`YYYY-MM-DD`)) {
+          currentDateindex = index
+          return false
+        }
+      })
+      
+      if (currentDateindex <= -1) {
+        currencies.value.push(formData)
+      } else {
+        currencies.value.splice(currentDateindex, 1, formData)
+      }
+      dbSet(dbRef(database, dbPath), currencies.value)
     }
   }
 
   const labels = []
   const data = []
   
-  // const dbUser = dbRef(database, dbPath)
-  // onValue(dbUser, snapshot => {
-  //   const user = snapshot.val()
-  //   console.log(user)
-  //   if (!user) {
-  //     dbSet(dbRef(database, dbPath), {
-  //       in_game_name: ``,
-  //       email: auth.currentUser.email,
-  //       active: false
-  //     })
-  //   }
-  // })
+  const setCurrenyDataFromYearMonth = (year, month) => {
+    const dbPath = `${DB_PATH_BLUE_ARCHIVE_CURRENCY}/${auth.currentUser.uid}/${year}-${month}`
+    const dbData = dbRef(database, dbPath)
+    onValue(dbData, snapshot => {
+      const data = snapshot.val()
+      console.log(data)
+      if (data) {
+        currencies.value = [...data]
+      }
+    })
+  }
+  setCurrenyDataFromYearMonth(current_year, current_month)
 
   for (let i = 1; i <= daysInMonth; i++) {
     const day = `${i}`.length === 1 ? `0${i}` : i

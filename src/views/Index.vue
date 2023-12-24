@@ -78,7 +78,7 @@
   // import Chart from 'chart.js/auto'
   import { Chart, LineController, LineElement, PointElement, CategoryScale, LinearScale, Tooltip } from 'chart.js'
   import { getDatabase, ref as dbRef, set as dbSet, onValue } from 'firebase/database'
-  import { DB_PATH_BLUE_ARCHIVE_CURRENCY, find } from '@/utils'
+  import { DB_PATH_USER, DB_PATH_BLUE_ARCHIVE_CURRENCY, find, getDayjsNoTime } from '@/utils'
 
   // TODO: Update user data to store the latest currency (for prediction)
   // TODO: Prediction line
@@ -100,10 +100,12 @@
   const currencies = ref([])
 
   const auth = reactive(store.state.auth)
+  
   const current_year = dayjs().year()
   const current_month = dayjs().month() + 1 // due to month start at 0 to 11
   const current_day = dayjs().date()
   const daysInMonth = date.value.daysInMonth()
+  const averageGain = 12000/daysInMonth
   const latestData = ref({
     pyroxene: 0,
     free_pull: 0
@@ -152,6 +154,15 @@
     if (current_day === i) form.value.date = i
   }
 
+  const setLatestRecord = () => {
+    const user = store.state.user
+    if (user.blue_archive && user.blue_archive.currency) {
+      latestData.value.pyroxene = user.blue_archive.currency.pyroxene
+      latestData.value.free_pull = user.blue_archive.currency.free_pull
+    }
+  }
+  setLatestRecord()
+
   const onSave = () => {
     if (auth.currentUser) {
       const saveDate = dayjs(`${form.value.year}-${form.value.month}-${form.value.date}`)
@@ -162,11 +173,11 @@
         day: saveDate.format(`YYYY-MM-DD`)
       }
 
-      if (!formData.pyroxene) {
+      if (isNaN(formData.pyroxene)) {
         formData.pyroxene = latestData.value ? latestData.value.pyroxene : 0
       }
 
-      if (!formData.free_pull) {
+      if (isNaN(formData.free_pull)) {
         formData.free_pull = latestData.value ? latestData.value.free_pull : 0
       }
 
@@ -184,6 +195,42 @@
         currencies.value.splice(currentDateindex, 1, formData)
       }
       dbSet(dbRef(database, dbPath), currencies.value)
+      
+      // Set latest record to user
+      const dbUserPath = `${DB_PATH_USER}/${auth.currentUser.uid}`
+      const dbUser = dbRef(database, dbUserPath)
+      onValue(dbUser, snapshot => {
+        const user = snapshot.val()
+        
+        if (!user) {
+          window.alert(`No user data found!!`)
+        } else {
+          if (!user.blue_archive) {
+            user.blue_archive = {
+              currency: formData
+            }
+          } else {
+            const saveDateDay = getDayjsNoTime(formData.day)
+            const latestDay = getDayjsNoTime(user.blue_archive.currency.day)
+            const dateDiff = latestDay.diff(saveDateDay, `day`)
+
+            if (dateDiff <= 0) {
+              user.blue_archive = {
+                currency: formData
+              }
+            }
+          }
+
+          dbSet(dbRef(database, dbUserPath), user)
+          store.commit(`setUser`, user)
+        }
+      })
+
+      // reset form
+      form.value.pyroxene = undefined
+      form.value.free_pull = undefined
+
+      setLatestRecord()
       updateChartData()
     }
   }
@@ -192,16 +239,13 @@
     const dbPath = `${DB_PATH_BLUE_ARCHIVE_CURRENCY}/${auth.currentUser.uid}/${year}-${month}`
     const dbData = dbRef(database, dbPath)
     onValue(dbData, snapshot => {
-      const data = snapshot.val() || []
+      let data = snapshot.val() || []
+      data = data.filter(item => item)
       data.sort((a,b) => {
         if (a.day > b.day) return 1
         else if (a.day < b.day) return -1
         else return 0
       })
-
-      if (data.length) {
-        latestData.value = {...data.slice(-1)[0]}
-      }
 
       currencies.value = [...data]
       updateChartData()
@@ -214,7 +258,7 @@
     let toMonth = date.value.month()+1-1 // +1 due to month start at 0, -1 because wantting to go to previous month
 
     if (toMonth <= 0) {
-      toMonth = `12`
+      toMonth = 12
       toYear--
     }
 
@@ -241,18 +285,44 @@
   const updateChartData = () => {
     const labels = []
     const data = []
+    const predictData = []
+    const user = store.state.user
+    let currentTotal = 0
+    let latestOnlyDate = null
+
+    if (user.blue_archive && user.blue_archive.currency) {
+      currentTotal = user.blue_archive.currency.pyroxene + (user.blue_archive.currency.free_pull * 120)
+      latestOnlyDate = getDayjsNoTime(user.blue_archive.currency.day)
+    }
     
     for (let i = 1; i <= daysInMonth; i++) {
       const day = `${i}`.length === 1 ? `0${i}` : i
       const plotDay = `${date.value.format(`YYYY-MM`)}-${day}`
+      const plotDayDate = getDayjsNoTime(`${plotDay}`)
       labels.push(plotDay)
       
+      let totalCurrency = 0
       const currency = find(currencies.value, `day`, plotDay)
-      data.push(currency ? currency.pyroxene + (currency.free_pull*120) : null)
+      if (!currency) {
+        data.push(null)
+      } else {
+        totalCurrency = currency.pyroxene + (currency.free_pull*120)
+        data.push(totalCurrency)
+      }
+
+      // will bug with 0 pyrox, but whatever
+      const dateDiff = latestOnlyDate.diff(plotDayDate, `day`)
+      if (currentTotal <= 0 || dateDiff > 0) {
+        predictData.push(null)
+      } else {
+        const predictCurrency = Math.floor(((dateDiff * -1) * averageGain) + currentTotal)
+        predictData.push(predictCurrency)
+      }
     }
 
     $chart.data.labels = labels
     $chart.data.datasets[0].data = data
+    $chart.data.datasets[1].data = predictData
     $chart.update()
   }
 
@@ -265,6 +335,11 @@
           {
             data: [],
             borderColor: `#00D8FB`,
+            backgroundColor: `#FFFFFF`
+          },
+          {
+            data: [],
+            borderColor: `#FFE9F2`,
             backgroundColor: `#FFFFFF`
           }
         ]

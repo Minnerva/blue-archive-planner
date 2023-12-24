@@ -1,3 +1,6 @@
+import dayjs from 'dayjs'
+
+export const DB_PATH_USER = `/users`
 export const DB_PATH_BLUE_ARCHIVE_CURRENCY = `/blue-archive-currencies`
 
 export const getUrl = (path) => {
@@ -10,7 +13,7 @@ export const getUrl = (path) => {
 
 export const findIndex = (array, key, value) => {
   let index = -1
-
+  
   array.forEach((item, i) => {
     if (item[key] === value) {
       index = i
@@ -24,4 +27,8 @@ export const findIndex = (array, key, value) => {
 export const find = (array, key, value) => {
   const index = findIndex(array, key, value)
   return index > -1 ? array[index] : false
+}
+
+export const getDayjsNoTime = (dateString) => {
+  return dayjs(`${dateString} 00:00:00`)
 }

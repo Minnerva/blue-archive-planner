@@ -10,6 +10,7 @@
   import { getAnalytics } from 'firebase/analytics'
   import { getAuth, onAuthStateChanged } from 'firebase/auth'
   import { getDatabase, ref as dbRef, set as dbSet, onValue } from 'firebase/database'
+  import { DB_PATH_USER } from '@/utils'
 
   import Nav from '@/components/Nav.vue'
   import Footer from '@/components/Footer.vue'
@@ -43,7 +44,7 @@
       store.commit(`setAuth`, false)
       store.commit(`setUser`, false)
     } else {
-      const dbPath = `/users/${auth.currentUser.uid}`
+      const dbPath = `${DB_PATH_USER}/${auth.currentUser.uid}`
       const database = getDatabase(app)
 
       const dbUser = dbRef(database, dbPath)

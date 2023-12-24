@@ -77,11 +77,17 @@
   import dayjs from 'dayjs'
   // import Chart from 'chart.js/auto'
   import { Chart, LineController, LineElement, PointElement, CategoryScale, LinearScale, Tooltip } from 'chart.js'
+  import { getAuth } from 'firebase/auth'
   import { getDatabase, ref as dbRef, set as dbSet, onValue } from 'firebase/database'
   import { DB_PATH_USER, DB_PATH_BLUE_ARCHIVE_CURRENCY, find, getDayjsNoTime } from '@/utils'
 
-  // TODO: Update user data to store the latest currency (for prediction)
-  // TODO: Prediction line
+  // TODO: Fix bug on deploy
+  // TODO: Switch between pyroxene view and pull view
+  // TODO: Banner List
+  // TODO: Able to select Banner to pull
+  // TODO: Able to add pyrox use at specific date 
+  // TODO: Able to delete add pyrox use
+  // TODO: Remove email and has a page to input in game name instead (required for active account)
 
   Chart.register(
     LineController,
@@ -98,8 +104,6 @@
   let $chart = null
   const date = ref(dayjs())
   const currencies = ref([])
-
-  const auth = reactive(store.state.auth)
   
   const current_year = dayjs().year()
   const current_month = dayjs().month() + 1 // due to month start at 0 to 11
@@ -111,7 +115,8 @@
     free_pull: 0
   })
 
-  const database = getDatabase(store.state.firebase)
+  const auth = getAuth()
+  const database = getDatabase()
 
   const form = ref({
     date: ``,

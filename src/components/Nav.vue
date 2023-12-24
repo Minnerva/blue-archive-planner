@@ -4,7 +4,7 @@
       <div class="flex-none w-14">Logo</div>
       <div class="flex-1">Menu</div>
       <div class="flex-none w-20">
-        <button v-if="!auth.currentUser" @click="onSignIn" class="bg-white w-full p-1 border rounded-lg">Sign In</button>
+        <button v-if="!user" @click="onSignIn" class="bg-white w-full p-1 border rounded-lg">Sign In</button>
         <button v-else @click="onSignOut" class="bg-white w-full p-1 border rounded-lg">Sign Out</button>
       </div>
     </div>
@@ -14,15 +14,16 @@
 <script setup>
   import { computed } from 'vue'
   import { useStore } from 'vuex'
-  import { signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth'
+  import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth'
 
   const store = useStore()
-  const auth = computed(() => store.state.auth)
+  const user = computed(() => store.state.user)
 
   const onSignIn = () => {
+    const auth = getAuth()
     const provider = new GoogleAuthProvider()
 
-    signInWithPopup(store.state.auth, provider)
+    signInWithPopup(auth, provider)
     .then(result => {})
     .catch(err => {
       console.log(err)
@@ -30,7 +31,9 @@
   }
 
   const onSignOut = () => {
-    signOut(store.state.auth)
+    const auth = getAuth()
+    
+    signOut(auth)
       .then(result => {})
       .catch(err => {
         console.log(err)

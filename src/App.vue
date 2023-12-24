@@ -8,7 +8,7 @@
   import { useStore } from 'vuex'
   import { initializeApp } from 'firebase/app'
   import { getAnalytics } from 'firebase/analytics'
-  import { getAuth, onAuthStateChanged } from 'firebase/auth'
+  import { getAuth } from 'firebase/auth'
   import { getDatabase, ref as dbRef, set as dbSet, onValue } from 'firebase/database'
   import { DB_PATH_USER } from '@/utils'
 
@@ -29,24 +29,23 @@
   }
 
   const app = initializeApp(firebaseConfig)
-  store.commit(`setFirebase`, app)
+  // store.commit(`setFirebase`, app)
 
   getAnalytics(app)
 
   const auth = getAuth(app)
-  store.commit(`setAuth`, auth)
+  // store.commit(`setAuth`, auth)
+  const database = getDatabase(app)
 
   auth.onAuthStateChanged(user => {
-    store.commit(`setAuth`, auth)
+    // store.commit(`setAuth`, auth)
     
     if (!auth.currentUser) {
       console.log(`Sign Out`)
-      store.commit(`setAuth`, false)
+      // store.commit(`setAuth`, false)
       store.commit(`setUser`, false)
     } else {
       const dbPath = `${DB_PATH_USER}/${auth.currentUser.uid}`
-      const database = getDatabase(app)
-
       const dbUser = dbRef(database, dbPath)
       onValue(dbUser, snapshot => {
         const user = snapshot.val()

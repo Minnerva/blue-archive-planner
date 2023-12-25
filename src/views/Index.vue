@@ -82,7 +82,8 @@
   import { getDatabase, ref as dbRef, set as dbSet, onValue } from 'firebase/database'
   import { 
     DB_PATH_USER, DB_PATH_BLUE_ARCHIVE_CURRENCY, find, getDayjsNoTime, 
-    getOptionsYear, getOptionsMonth, getOptionsDay, getBlueArchiveCurrencyToPull
+    getOptionsYear, getOptionsMonth, getOptionsDay, getBlueArchiveCurrencyToPull,
+    findUser, saveUser
   } from '@/utils'
   import LineChart from '@/components/LineChart.vue'
 
@@ -196,7 +197,7 @@
     changeYearMonth(toYear, toMonth)
   }
 
-  const onSave = () => {
+  const onSave = async () => {
     if (auth.currentUser) {
       const saveDate = dayjs(`${form.year}-${form.month}-${form.date}`)
       const dbPath = `${DB_PATH_BLUE_ARCHIVE_CURRENCY}/${auth.currentUser.uid}/${saveDate.format(`YYYY-MM`)}`
@@ -230,11 +231,11 @@
       dbSet(dbRef(database, dbPath), currencies.value)
       
       // Set latest record to user
-      const dbUserPath = `${DB_PATH_USER}/${auth.currentUser.uid}`
-      const dbUser = dbRef(database, dbUserPath)
-      onValue(dbUser, snapshot => {
-        const user = snapshot.val()
-        
+      // const dbUserPath = `${DB_PATH_USER}/${auth.currentUser.uid}`
+      // const dbUser = dbRef(database, dbUserPath)
+      // onValue(dbUser, snapshot => {
+      //   const user = snapshot.val()
+        const user = await findUser()
         if (!user) {
           window.alert(`No user data found!!`)
         } else {
@@ -253,11 +254,11 @@
               }
             }
           }
-
+          
           dbSet(dbRef(database, dbUserPath), user)
           store.commit(`setUser`, user)
         }
-      })
+      // })
 
       // reset form
       form.pyroxene = undefined
@@ -297,12 +298,14 @@
       }
 
       // will bug with 0 pyrox, but whatever
-      const dateDiff = latestOnlyDate.diff(plotDayDate, `day`)
-      if (currentTotal <= 0 || dateDiff > 0) {
-        predictData.push(null)
-      } else {
-        const predictCurrency = getBlueArchiveCurrencyToPull(((dateDiff * -1) * averageGain) + currentTotal)
-        predictData.push(predictCurrency)
+      if (currentTotal > 0) {
+        const dateDiff = latestOnlyDate.diff(plotDayDate, `day`)
+        if (dateDiff > 0) {
+          predictData.push(null)
+        } else {
+          const predictCurrency = getBlueArchiveCurrencyToPull(((dateDiff * -1) * averageGain) + currentTotal)
+          predictData.push(predictCurrency)
+        }
       }
     }
 

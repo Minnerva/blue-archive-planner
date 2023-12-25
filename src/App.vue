@@ -11,14 +11,15 @@
   import { initializeApp } from 'firebase/app'
   // import { getAnalytics } from 'firebase/analytics'
   import { getAuth } from 'firebase/auth'
-  import { getDatabase, ref as dbRef, set as dbSet, onValue } from 'firebase/database'
-  import { DB_PATH_USER } from '@/utils'
+  import { getDatabase, ref as dbRef, set as dbSet, get, child } from 'firebase/database'
+  import { DB_PATH_USER, findUser, saveUser } from '@/utils'
 
   import Nav from '@/components/Nav.vue'
   import Footer from '@/components/Footer.vue'
 
   dayjs.extend(utc)
   const store = useStore()
+  
   const firebaseConfig = {
     apiKey: process.env.FIREBASE_API_KEY,
     authDomain: process.env.FIREBASE_AUTH_DOMAIN,
@@ -35,33 +36,32 @@
   const database = getDatabase(app)
   // getAnalytics(app)
 
-  auth.onAuthStateChanged(user => {
-    if (!auth.currentUser) {
+  auth.onAuthStateChanged(async (currentUser) => {
+    if (!currentUser) {
       store.commit(`setUser`, false)
     } else {
-      const dbPath = `${DB_PATH_USER}/${auth.currentUser.uid}`
-      const dbUser = dbRef(database, dbPath)
-      onValue(dbUser, snapshot => {
-        const user = snapshot.val()
-        let updateUserData = {}
-        const currentTime = dayjs.utc().format(`YYYY-MM-DD HH:mm:ss`)
-        
-        if (!user) {
-          updateUserData = {
-            ign: ``,
-            active: false,
-            // email: auth.currentUser.email,
-            created_at: currentTime,
-            last_signed_in_at: currentTime
-          }
-        } else {
-          updateUserData = {...user}
-          updateUserData.last_signed_in_at = currentTime
-        }
+      store.commit(`setUID`, currentUser.uid)
 
-        dbSet(dbRef(database, dbPath), updateUserData)
-        store.commit(`setUser`, user)
-      })
+      const user = await store.dispatch(`findUser`)
+
+      const currentTime = dayjs.utc().format(`YYYY-MM-DD HH:mm:ss`)
+      let updateUserData = {}
+      
+      if (!user) {
+        updateUserData = {
+          ign: ``,
+          active: false,
+          // email: auth.currentUser.email,
+          created_at: currentTime,
+          last_signed_in_at: currentTime
+        }
+      } else {
+        updateUserData = {...user}
+        updateUserData.last_signed_in_at = currentTime
+      }
+
+      saveUser(updateUserData)
+      store.commit(`setUser`, user)
     }
   })
 </script>

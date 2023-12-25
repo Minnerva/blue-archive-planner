@@ -6,8 +6,10 @@
 
 <script setup>
   import { useStore } from 'vuex'
+  import dayjs from 'dayjs'
+  import utc from 'dayjs/plugin/utc'
   import { initializeApp } from 'firebase/app'
-  import { getAnalytics } from 'firebase/analytics'
+  // import { getAnalytics } from 'firebase/analytics'
   import { getAuth } from 'firebase/auth'
   import { getDatabase, ref as dbRef, set as dbSet, onValue } from 'firebase/database'
   import { DB_PATH_USER } from '@/utils'
@@ -15,6 +17,7 @@
   import Nav from '@/components/Nav.vue'
   import Footer from '@/components/Footer.vue'
 
+  dayjs.extend(utc)
   const store = useStore()
   const firebaseConfig = {
     apiKey: process.env.FIREBASE_API_KEY,
@@ -30,7 +33,7 @@
   const app = initializeApp(firebaseConfig)
   const auth = getAuth(app)
   const database = getDatabase(app)
-  getAnalytics(app)
+  // getAnalytics(app)
 
   auth.onAuthStateChanged(user => {
     if (!auth.currentUser) {
@@ -40,15 +43,23 @@
       const dbUser = dbRef(database, dbPath)
       onValue(dbUser, snapshot => {
         const user = snapshot.val()
+        let updateUserData = {}
+        const currentTime = dayjs.utc().format(`YYYY-MM-DD HH:mm:ss`)
         
         if (!user) {
-          dbSet(dbRef(database, dbPath), {
-            in_game_name: ``,
-            email: auth.currentUser.email,
-            active: false
-          })
+          updateUserData = {
+            ign: ``,
+            active: false,
+            // email: auth.currentUser.email,
+            created_at: currentTime,
+            last_signed_in_at: currentTime
+          }
+        } else {
+          updateUserData = {...user}
+          updateUserData.last_signed_in_at = currentTime
         }
 
+        dbSet(dbRef(database, dbPath), updateUserData)
         store.commit(`setUser`, user)
       })
     }

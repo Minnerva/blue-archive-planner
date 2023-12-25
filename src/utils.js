@@ -76,3 +76,7 @@ export const getOptionsDay = (year, month) => {
 
   return items
 }
+
+export const getBlueArchiveCurrencyToPull = (totalCurrency) => {
+  return Math.floor(totalCurrency/120)
+}

@@ -82,7 +82,7 @@
   import { getDatabase, ref as dbRef, set as dbSet, onValue } from 'firebase/database'
   import { 
     DB_PATH_USER, DB_PATH_BLUE_ARCHIVE_CURRENCY, find, getDayjsNoTime, 
-    getOptionsYear, getOptionsMonth, getOptionsDay
+    getOptionsYear, getOptionsMonth, getOptionsDay, getBlueArchiveCurrencyToPull
   } from '@/utils'
   import LineChart from '@/components/LineChart.vue'
 
@@ -292,7 +292,7 @@
       if (!currency) {
         data.push(null)
       } else {
-        totalCurrency = currency.pyroxene + (currency.free_pull*120)
+        totalCurrency = getBlueArchiveCurrencyToPull((currency.pyroxene + (currency.free_pull*120)))
         data.push(totalCurrency)
       }
 
@@ -301,7 +301,7 @@
       if (currentTotal <= 0 || dateDiff > 0) {
         predictData.push(null)
       } else {
-        const predictCurrency = Math.floor(((dateDiff * -1) * averageGain) + currentTotal)
+        const predictCurrency = getBlueArchiveCurrencyToPull(((dateDiff * -1) * averageGain) + currentTotal)
         predictData.push(predictCurrency)
       }
     }

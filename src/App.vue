@@ -16,7 +16,6 @@
   import Footer from '@/components/Footer.vue'
 
   const store = useStore()
-  
   const firebaseConfig = {
     apiKey: process.env.FIREBASE_API_KEY,
     authDomain: process.env.FIREBASE_AUTH_DOMAIN,
@@ -29,20 +28,12 @@
   }
 
   const app = initializeApp(firebaseConfig)
-  // store.commit(`setFirebase`, app)
-
+  const auth = getAuth(app)
+  const database = getDatabase(app)
   getAnalytics(app)
 
-  const auth = getAuth(app)
-  // store.commit(`setAuth`, auth)
-  const database = getDatabase(app)
-
   auth.onAuthStateChanged(user => {
-    // store.commit(`setAuth`, auth)
-    
     if (!auth.currentUser) {
-      console.log(`Sign Out`)
-      // store.commit(`setAuth`, false)
       store.commit(`setUser`, false)
     } else {
       const dbPath = `${DB_PATH_USER}/${auth.currentUser.uid}`

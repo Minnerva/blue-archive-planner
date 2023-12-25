@@ -7,7 +7,10 @@
   
   <div class="flex justify-center">
     <div class="w-full max-w-3xl h-72">
-      <canvas :id="chart_id"></canvas>
+      <LineChart
+        :labels="chartProps.labels"
+        :data="chartProps.data"
+      ></LineChart>
     </div>
   </div>
 
@@ -72,16 +75,17 @@
 </template>
 
 <script setup>
-  import { ref, reactive, onMounted } from 'vue'
+  import { ref, reactive, watch, onMounted } from 'vue'
   import { useStore } from 'vuex'
   import dayjs from 'dayjs'
-  // import Chart from 'chart.js/auto'
-  import { Chart, LineController, LineElement, PointElement, CategoryScale, LinearScale, Tooltip } from 'chart.js'
   import { getAuth } from 'firebase/auth'
   import { getDatabase, ref as dbRef, set as dbSet, onValue } from 'firebase/database'
-  import { DB_PATH_USER, DB_PATH_BLUE_ARCHIVE_CURRENCY, find, getDayjsNoTime } from '@/utils'
+  import { 
+    DB_PATH_USER, DB_PATH_BLUE_ARCHIVE_CURRENCY, find, getDayjsNoTime, 
+    getOptionsYear, getOptionsMonth, getOptionsDay
+  } from '@/utils'
+  import LineChart from '@/components/LineChart.vue'
 
-  // TODO: Fix bug on deploy
   // TODO: Switch between pyroxene view and pull view
   // TODO: Banner List
   // TODO: Able to select Banner to pull
@@ -89,19 +93,7 @@
   // TODO: Able to delete add pyrox use
   // TODO: Remove email and has a page to input in game name instead (required for active account)
 
-  Chart.register(
-    LineController,
-    LineElement,
-    PointElement,
-    CategoryScale,
-    LinearScale,
-    Tooltip
-  )
-
   const store = useStore()
-  
-  const chart_id = `chart`
-  let $chart = null
   const date = ref(dayjs())
   const currencies = ref([])
   
@@ -118,46 +110,37 @@
   const auth = getAuth()
   const database = getDatabase()
 
-  const form = ref({
-    date: ``,
+  const form = reactive({
+    day: ``,
     pyroxene: undefined,
-    free_pull: undefined
+    free_pull: undefined,
+    year: current_year,
+    month: current_month,
+    date: current_day
   })
-  const options = ref({
-    years: [],
-    months: [],
-    dates: []
+  const options = reactive({
+    years: getOptionsYear(),
+    months: getOptionsMonth(),
+    dates: getOptionsDay(current_year, current_month)
+  })
+  
+  const chartProps = ref({
+    labels: [],
+    data: []
   })
 
-  for (let i = current_year; i >= 2022; i--) {
-    let year = {
-      value: i,
-      label: i
+  watch(
+    () => ({...form}),
+    (newValue, oldValue) => {
+      if (newValue.month !== oldValue.month || newValue.year !== oldValue.year) {
+        options.dates = [...getOptionsDay(newValue.year, newValue.month)]
+
+        if (options.dates.length < form.date) {
+          form.date = 1
+        }
+      }
     }
-    options.value.years.push(year)
-
-    if (current_year === i) form.value.year = i
-  }
-
-  for (let i = 1; i <= 12; i++) {
-    let month = {
-      value: i,
-      label: i <= 9 ? `0${i}` : i
-    }
-    options.value.months.push(month)
-
-    if (current_month === i) form.value.month = i
-  }
-
-  for (let i = 1; i <= daysInMonth; i++) {
-    let optionDate = {
-      value: i,
-      label: i <= 9 ? `0${i}` : i
-    }
-    options.value.dates.push(optionDate)
-
-    if (current_day === i) form.value.date = i
-  }
+  )
 
   const setLatestRecord = () => {
     const user = store.state.user
@@ -166,15 +149,60 @@
       latestData.value.free_pull = user.blue_archive.currency.free_pull
     }
   }
-  setLatestRecord()
+
+  const setCurrenyDataFromYearMonth = (year, month) => {
+    const dbPath = `${DB_PATH_BLUE_ARCHIVE_CURRENCY}/${auth.currentUser.uid}/${year}-${month}`
+    const dbData = dbRef(database, dbPath)
+    onValue(dbData, snapshot => {
+      let data = snapshot.val() || []
+      data = data.filter(item => item) // for clearing index with null data
+      data.sort((a,b) => {
+        if (a.day > b.day) return 1
+        else if (a.day < b.day) return -1
+        else return 0
+      })
+
+      currencies.value = [...data]
+      updateChartData()
+    })
+  }
+
+  const changeYearMonth = (year, month) => {
+    date.value = dayjs(`${year}-${month}-01`)
+    setCurrenyDataFromYearMonth(year, month)
+  }
+  
+  const onPrev = () => {
+    let toYear = date.value.year()
+    let toMonth = date.value.month()+1-1 // +1 due to month start at 0, -1 because wantting to go to previous month
+
+    if (toMonth <= 0) {
+      toMonth = 12
+      toYear--
+    }
+
+    changeYearMonth(toYear, toMonth)
+  }
+
+  const onNext = () => {
+    let toYear = date.value.year()
+    let toMonth = date.value.month()+1+1 // +1 due to month start at 0, +1 because wantting to go to next month
+
+    if (toMonth > 12) {
+      toMonth = 1
+      toYear++
+    }
+
+    changeYearMonth(toYear, toMonth)
+  }
 
   const onSave = () => {
     if (auth.currentUser) {
-      const saveDate = dayjs(`${form.value.year}-${form.value.month}-${form.value.date}`)
+      const saveDate = dayjs(`${form.year}-${form.month}-${form.date}`)
       const dbPath = `${DB_PATH_BLUE_ARCHIVE_CURRENCY}/${auth.currentUser.uid}/${saveDate.format(`YYYY-MM`)}`
       const formData = {
-        pyroxene: form.value.pyroxene,
-        free_pull: form.value.free_pull,
+        pyroxene: form.pyroxene,
+        free_pull: form.free_pull,
         day: saveDate.format(`YYYY-MM-DD`)
       }
 
@@ -232,59 +260,12 @@
       })
 
       // reset form
-      form.value.pyroxene = undefined
-      form.value.free_pull = undefined
+      form.pyroxene = undefined
+      form.free_pull = undefined
 
       setLatestRecord()
       updateChartData()
     }
-  }
-
-  const setCurrenyDataFromYearMonth = (year, month) => {
-    const dbPath = `${DB_PATH_BLUE_ARCHIVE_CURRENCY}/${auth.currentUser.uid}/${year}-${month}`
-    const dbData = dbRef(database, dbPath)
-    onValue(dbData, snapshot => {
-      let data = snapshot.val() || []
-      data = data.filter(item => item)
-      data.sort((a,b) => {
-        if (a.day > b.day) return 1
-        else if (a.day < b.day) return -1
-        else return 0
-      })
-
-      currencies.value = [...data]
-      updateChartData()
-    })
-  }
-  setCurrenyDataFromYearMonth(current_year, current_month)
-
-  const onPrev = () => {
-    let toYear = date.value.year()
-    let toMonth = date.value.month()+1-1 // +1 due to month start at 0, -1 because wantting to go to previous month
-
-    if (toMonth <= 0) {
-      toMonth = 12
-      toYear--
-    }
-
-    changeYearMonth(toYear, toMonth)
-  }
-
-  const onNext = () => {
-    let toYear = date.value.year()
-    let toMonth = date.value.month()+1+1 // +1 due to month start at 0, +1 because wantting to go to next month
-
-    if (toMonth > 12) {
-      toMonth = 1
-      toYear++
-    }
-
-    changeYearMonth(toYear, toMonth)
-  }
-
-  const changeYearMonth = (year, month) => {
-    date.value = dayjs(`${year}-${month}-01`)
-    setCurrenyDataFromYearMonth(year, month)
   }
 
   const updateChartData = () => {
@@ -325,56 +306,12 @@
       }
     }
 
-    $chart.data.labels = labels
-    $chart.data.datasets[0].data = data
-    $chart.data.datasets[1].data = predictData
-    $chart.update()
+    chartProps.value.labels = labels
+    chartProps.value.data = [data, predictData]
   }
-
-  const applyChart = () => {
-    $chart = new Chart(document.querySelector(`#${chart_id}`), {
-      type: `line`,
-      data: {
-        labels: [],
-        datasets: [
-          {
-            data: [],
-            borderColor: `#00D8FB`,
-            backgroundColor: `#FFFFFF`
-          },
-          {
-            data: [],
-            borderColor: `#FFE9F2`,
-            backgroundColor: `#FFFFFF`
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false
-          },
-        },
-        scales: {
-          x: {
-            ticks: {
-              autoSkip: true,
-              maxTicksLimit: 10
-            }
-          },
-          y: {
-            beginAtZero: true
-          }
-        }
-      }
-    })
-  }
-  
 
   onMounted(() => {
-    applyChart()
-    updateChartData()
+    setLatestRecord()
+    setCurrenyDataFromYearMonth(current_year, current_month)
   })
 </script>

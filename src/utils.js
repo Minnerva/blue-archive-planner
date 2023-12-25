@@ -32,3 +32,47 @@ export const find = (array, key, value) => {
 export const getDayjsNoTime = (dateString) => {
   return dayjs(`${dateString} 00:00:00`)
 }
+
+export const getOptionsYear = () => {
+  const items = []
+  const current_year = dayjs().year()
+
+  for (let i = 2021; i <= (current_year+1); i++) {
+    let item = {
+      value: i,
+      label: i
+    }
+    items.push(item)
+  }
+
+  return items
+}
+
+export const getOptionsMonth = () => {
+  const items = []
+
+  for (let i = 1; i <= 12; i++) {
+    let item = {
+      value: i,
+      label: i <= 9 ? `0${i}` : i
+    }
+    items.push(item)
+  }
+
+  return items
+}
+
+export const getOptionsDay = (year, month) => {
+  const items = []
+  const days = dayjs(`${year}-${month}-01`).daysInMonth()
+
+  for (let i = 1; i <= days; i++) {
+    let item = {
+      value: i,
+      label: i <= 9 ? `0${i}` : i
+    }
+    items.push(item)
+  }
+
+  return items
+}

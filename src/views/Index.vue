@@ -230,35 +230,23 @@
       }
       dbSet(dbRef(database, dbPath), currencies.value)
       
-      // Set latest record to user
-      // const dbUserPath = `${DB_PATH_USER}/${auth.currentUser.uid}`
-      // const dbUser = dbRef(database, dbUserPath)
-      // onValue(dbUser, snapshot => {
-      //   const user = snapshot.val()
-        const user = await findUser()
-        if (!user) {
-          window.alert(`No user data found!!`)
-        } else {
-          if (!user.blue_archive) {
-            user.blue_archive = {
-              currency: formData
-            }
-          } else {
-            const saveDateDay = getDayjsNoTime(formData.day)
-            const latestDay = getDayjsNoTime(user.blue_archive.currency.day)
-            const dateDiff = latestDay.diff(saveDateDay, `day`)
-
-            if (dateDiff <= 0) {
-              user.blue_archive = {
-                currency: formData
-              }
-            }
-          }
-          
-          dbSet(dbRef(database, dbUserPath), user)
-          store.commit(`setUser`, user)
+      const { user } = store.state
+      if (!user.blue_archive) {
+        user.blue_archive = {
+          currency: formData
         }
-      // })
+      } else {
+        const saveDateDay = getDayjsNoTime(formData.day)
+        const latestDay = getDayjsNoTime(user.blue_archive.currency.day)
+        const dateDiff = latestDay.diff(saveDateDay, `day`)
+
+        if (dateDiff <= 0) {
+          user.blue_archive = {
+            currency: formData
+          }
+        }
+      }
+      store.dispatch(`saveUser`, user)
 
       // reset form
       form.pyroxene = undefined

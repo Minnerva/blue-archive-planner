@@ -1,6 +1,6 @@
 import { createStore } from 'vuex'
 import modules from './modules'
-import { getData, getDataListen } from '@/utils'
+import { getData, getDataListen, saveData } from '@/utils'
 
 export default createStore({
   state: {
@@ -24,6 +24,9 @@ export default createStore({
     },
     setUserListen ({ state, commit }, callback) {
       getDataListen(`${state.DB_PATH_USER}/${state.uid}`, (user) => callback(user))
+    },
+    async saveUser ({ state }, user) {
+      await saveData(`${state.DB_PATH_USER}/${state.uid}`, user)
     }
   },
   modules

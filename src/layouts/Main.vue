@@ -3,7 +3,6 @@
   <button @click="onBack">Back</button>
   <h2>{{ getUrl(`hello`) }}</h2> -->
   <div class="w-full py-3 md:px-8 sm:px-6 px-4">
-    <div>{{  user  }}</div>
     <template v-if="user">
       <div v-if="!user.active">Please contact Minnerva to activate your account.</div>
       <router-view v-else></router-view>

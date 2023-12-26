@@ -30,6 +30,11 @@ export const getDataListen = (dbPath, callback) => {
   })
 }
 
+export const saveData = (dbPath, data) => {
+  const database = getDatabase()
+  set(ref(database, dbPath), data)
+}
+
 export const findUser = async () => {
   return await getData(`${DB_PATH_USER}/${getUID()}`)
 }

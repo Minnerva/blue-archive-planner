@@ -1,7 +1,6 @@
 import { createStore } from 'vuex'
-import { getDatabase, ref, set, get, child } from 'firebase/database'
 import modules from './modules'
-import { getData } from '@/utils'
+import { getData, getDataListen } from '@/utils'
 
 export default createStore({
   state: {
@@ -22,6 +21,9 @@ export default createStore({
   actions: {
     findUser ({ state }) {
       return getData(`${state.DB_PATH_USER}/${state.uid}`)
+    },
+    setUserListen ({ state, commit }, callback) {
+      getDataListen(`${state.DB_PATH_USER}/${state.uid}`, (user) => callback(user))
     }
   },
   modules

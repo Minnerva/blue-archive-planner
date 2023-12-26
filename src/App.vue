@@ -11,8 +11,8 @@
   import { initializeApp } from 'firebase/app'
   // import { getAnalytics } from 'firebase/analytics'
   import { getAuth } from 'firebase/auth'
-  import { getDatabase, ref as dbRef, set as dbSet, get, child } from 'firebase/database'
-  import { DB_PATH_USER, findUser, saveUser } from '@/utils'
+  import { getDatabase } from 'firebase/database'
+  import { saveUser } from '@/utils'
 
   import Nav from '@/components/Nav.vue'
   import Footer from '@/components/Footer.vue'
@@ -42,26 +42,27 @@
     } else {
       store.commit(`setUID`, currentUser.uid)
 
-      const user = await store.dispatch(`findUser`)
-
-      const currentTime = dayjs.utc().format(`YYYY-MM-DD HH:mm:ss`)
       let updateUserData = {}
-      
-      if (!user) {
-        updateUserData = {
-          ign: ``,
-          active: false,
-          // email: auth.currentUser.email,
-          created_at: currentTime,
-          last_signed_in_at: currentTime
-        }
-      } else {
-        updateUserData = {...user}
-        updateUserData.last_signed_in_at = currentTime
-      }
+      const currentTime = dayjs.utc().format(`YYYY-MM-DD HH:mm:ss`)
+      store.dispatch(`setUserListen`, (user) => {
+        if (!store.state.user) {
+          if (!user) {
+            updateUserData = {
+              ign: ``,
+              active: false,
+              // email: auth.currentUser.email,
+              created_at: currentTime,
+              last_signed_in_at: currentTime
+            }
+          } else {
+            updateUserData = {...user}
+            updateUserData.last_signed_in_at = currentTime
+          }
 
-      saveUser(updateUserData)
-      store.commit(`setUser`, user)
+          saveUser(updateUserData)
+        }
+        store.commit(`setUser`, user)
+      })
     }
   })
 </script>

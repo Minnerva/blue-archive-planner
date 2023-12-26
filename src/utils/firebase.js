@@ -1,5 +1,5 @@
 import { getAuth } from 'firebase/auth'
-import { getDatabase, ref, set, get, child } from 'firebase/database'
+import { getDatabase, ref, set, get, child, onValue } from 'firebase/database'
 
 export const DB_PATH_USER = `/users`
 export const DB_PATH_BLUE_ARCHIVE_CURRENCY = `/blue-archive-currencies`
@@ -19,6 +19,15 @@ export const getData = async (dbPath) => {
   } catch (err) {
     console.error(err)
   }
+}
+
+export const getDataListen = (dbPath, callback) => {
+  const database = getDatabase()
+  const dbRef = ref(database, dbPath)
+  onValue(dbRef, (snapshot) => {
+    const data = snapshot.val()
+    callback(data)
+  })
 }
 
 export const findUser = async () => {

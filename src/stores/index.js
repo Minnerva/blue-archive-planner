@@ -22,7 +22,7 @@ export default createStore({
     findUser ({ state }) {
       return getData(`${state.DB_PATH_USER}/${state.uid}`)
     },
-    setUserListen ({ state, commit }, callback) {
+    setUserListen ({ state }, callback) {
       getDataListen(`${state.DB_PATH_USER}/${state.uid}`, (user) => callback(user))
     },
     async saveUser ({ state }, user) {

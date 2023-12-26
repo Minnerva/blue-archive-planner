@@ -12,7 +12,6 @@
   // import { getAnalytics } from 'firebase/analytics'
   import { getAuth } from 'firebase/auth'
   import { getDatabase } from 'firebase/database'
-  import { saveUser } from '@/utils'
 
   import Nav from '@/components/Nav.vue'
   import Footer from '@/components/Footer.vue'
@@ -37,11 +36,13 @@
   // getAnalytics(app)
 
   auth.onAuthStateChanged(async (currentUser) => {
-    if (!currentUser) {
+    if (!currentUser && store.state.user) {
+      // prevent infinite calling on setUserListen when same user sign in, sign out, and then sign in again
+      window.location.reload()
+    } else if (!currentUser) {
       store.commit(`setUser`, false)
     } else {
       store.commit(`setUID`, currentUser.uid)
-
       let updateUserData = {}
       const currentTime = dayjs.utc().format(`YYYY-MM-DD HH:mm:ss`)
       store.dispatch(`setUserListen`, (user) => {
@@ -59,8 +60,9 @@
             updateUserData.last_signed_in_at = currentTime
           }
 
-          saveUser(updateUserData)
+          store.dispatch(`saveUser`, updateUserData)
         }
+
         store.commit(`setUser`, user)
       })
     }

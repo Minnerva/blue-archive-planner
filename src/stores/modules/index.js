@@ -1,5 +1,5 @@
-import user from './user'
+import baCurrencyOwn from './ba-currency-own'
 
 export default {
-  // user
+  'ba-currency-own': baCurrencyOwn
 }

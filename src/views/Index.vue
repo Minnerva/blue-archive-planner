@@ -19,39 +19,8 @@
     <div class="bg-white rounded-b-xl">
       <div class="p-2">
         <label>
-          Year: 
-          <select v-model="form.year">
-            <option
-              v-for="year in options.years"
-              :value="year.value"
-            >
-              {{ year.label }}
-            </option>
-          </select>
-        </label>
-
-        <label>
-          Month: 
-          <select v-model="form.month">
-            <option
-              v-for="month in options.months"
-              :value="month.value"
-            >
-              {{ month.label }}
-            </option>
-          </select>
-        </label>
-
-        <label>
           Date: 
-          <select v-model="form.date">
-            <option
-              v-for="date in options.dates"
-              :value="date.value"
-            >
-              {{ date.label }}
-            </option>
-          </select>
+          <input type="date" v-model="form.day">
         </label>
 
         <br>
@@ -78,13 +47,7 @@
   import { ref, reactive, watch, onMounted } from 'vue'
   import { useStore } from 'vuex'
   import dayjs from 'dayjs'
-  import { getAuth } from 'firebase/auth'
-  import { getDatabase, ref as dbRef, set as dbSet, onValue } from 'firebase/database'
-  import { 
-    DB_PATH_USER, DB_PATH_BLUE_ARCHIVE_CURRENCY, find, getDayjsNoTime, 
-    getOptionsYear, getOptionsMonth, getOptionsDay, getBlueArchiveCurrencyToPull,
-    findUser, saveUser
-  } from '@/utils'
+  import { find, getDayjsNoTime, getBlueArchiveCurrencyToPull } from '@/utils'
   import LineChart from '@/components/LineChart.vue'
 
   // TODO: Switch between pyroxene view and pull view
@@ -108,21 +71,10 @@
     free_pull: 0
   })
 
-  const auth = getAuth()
-  const database = getDatabase()
-
   const form = reactive({
-    day: ``,
+    day: `${current_year}-${current_month}-${current_day}`,
     pyroxene: undefined,
-    free_pull: undefined,
-    year: current_year,
-    month: current_month,
-    date: current_day
-  })
-  const options = reactive({
-    years: getOptionsYear(),
-    months: getOptionsMonth(),
-    dates: getOptionsDay(current_year, current_month)
+    free_pull: undefined
   })
   
   const chartProps = ref({
@@ -130,42 +82,33 @@
     data: []
   })
 
-  watch(
-    () => ({...form}),
-    (newValue, oldValue) => {
-      if (newValue.month !== oldValue.month || newValue.year !== oldValue.year) {
-        options.dates = [...getOptionsDay(newValue.year, newValue.month)]
-
-        if (options.dates.length < form.date) {
-          form.date = 1
-        }
-      }
-    }
-  )
-
   const setLatestRecord = () => {
-    const user = store.state.user
-    if (user.blue_archive && user.blue_archive.currency) {
-      latestData.value.pyroxene = user.blue_archive.currency.pyroxene
-      latestData.value.free_pull = user.blue_archive.currency.free_pull
-    }
+    store.dispatch(`ba-currency-own/getLatestRecordListen`, items => {
+      console.log(items)
+    })
+
+    // const user = store.state.user
+    // if (user.blue_archive && user.blue_archive.currency) {
+    //   latestData.value.pyroxene = user.blue_archive.currency.pyroxene
+    //   latestData.value.free_pull = user.blue_archive.currency.free_pull
+    // }
   }
 
   const setCurrenyDataFromYearMonth = (year, month) => {
-    const dbPath = `${DB_PATH_BLUE_ARCHIVE_CURRENCY}/${auth.currentUser.uid}/${year}-${month}`
-    const dbData = dbRef(database, dbPath)
-    onValue(dbData, snapshot => {
-      let data = snapshot.val() || []
-      data = data.filter(item => item) // for clearing index with null data
-      data.sort((a,b) => {
-        if (a.day > b.day) return 1
-        else if (a.day < b.day) return -1
-        else return 0
-      })
+    // const dbPath = `${DB_PATH_BLUE_ARCHIVE_CURRENCY}/${auth.currentUser.uid}/${year}-${month}`
+    // const dbData = dbRef(database, dbPath)
+    // onValue(dbData, snapshot => {
+    //   let data = snapshot.val() || []
+    //   data = data.filter(item => item) // for clearing index with null data
+    //   data.sort((a,b) => {
+    //     if (a.day > b.day) return 1
+    //     else if (a.day < b.day) return -1
+    //     else return 0
+    //   })
 
-      currencies.value = [...data]
-      updateChartData()
-    })
+    //   currencies.value = [...data]
+    //   updateChartData()
+    // })
   }
 
   const changeYearMonth = (year, month) => {
@@ -198,63 +141,73 @@
   }
 
   const onSave = async () => {
-    if (auth.currentUser) {
-      const saveDate = dayjs(`${form.year}-${form.month}-${form.date}`)
-      const dbPath = `${DB_PATH_BLUE_ARCHIVE_CURRENCY}/${auth.currentUser.uid}/${saveDate.format(`YYYY-MM`)}`
-      const formData = {
-        pyroxene: form.pyroxene,
-        free_pull: form.free_pull,
-        day: saveDate.format(`YYYY-MM-DD`)
-      }
-
-      if (isNaN(formData.pyroxene)) {
-        formData.pyroxene = latestData.value ? latestData.value.pyroxene : 0
-      }
-
-      if (isNaN(formData.free_pull)) {
-        formData.free_pull = latestData.value ? latestData.value.free_pull : 0
-      }
-
-      let currentDateindex = -1
-      currencies.value.forEach((currency, index) => {
-        if (currency.day === saveDate.format(`YYYY-MM-DD`)) {
-          currentDateindex = index
-          return false
-        }
-      })
-      
-      if (currentDateindex <= -1) {
-        currencies.value.push(formData)
-      } else {
-        currencies.value.splice(currentDateindex, 1, formData)
-      }
-      dbSet(dbRef(database, dbPath), currencies.value)
-      
-      const { user } = store.state
-      if (!user.blue_archive) {
-        user.blue_archive = {
-          currency: formData
-        }
-      } else {
-        const saveDateDay = getDayjsNoTime(formData.day)
-        const latestDay = getDayjsNoTime(user.blue_archive.currency.day)
-        const dateDiff = latestDay.diff(saveDateDay, `day`)
-
-        if (dateDiff <= 0) {
-          user.blue_archive = {
-            currency: formData
-          }
-        }
-      }
-      store.dispatch(`saveUser`, user)
-
-      // reset form
-      form.pyroxene = undefined
-      form.free_pull = undefined
-
-      setLatestRecord()
-      updateChartData()
+    const form_day = getDayjsNoTime(form.day)
+    const data = {
+      pyroxene: form.pyroxene,
+      free_pull: form.free_pull
     }
+    store.dispatch(`ba-currency-own/save`, {
+      key: form_day.format(`YYYY-MM-DD`),
+      data
+    })
+
+    // if (auth.currentUser) {
+    //   const saveDate = dayjs(`${form.year}-${form.month}-${form.date}`)
+    //   const dbPath = `${DB_PATH_BLUE_ARCHIVE_CURRENCY}/${auth.currentUser.uid}/${saveDate.format(`YYYY-MM`)}`
+    //   const formData = {
+    //     pyroxene: form.pyroxene,
+    //     free_pull: form.free_pull,
+    //     day: saveDate.format(`YYYY-MM-DD`)
+    //   }
+
+    //   if (isNaN(formData.pyroxene)) {
+    //     formData.pyroxene = latestData.value ? latestData.value.pyroxene : 0
+    //   }
+
+    //   if (isNaN(formData.free_pull)) {
+    //     formData.free_pull = latestData.value ? latestData.value.free_pull : 0
+    //   }
+
+    //   let currentDateindex = -1
+    //   currencies.value.forEach((currency, index) => {
+    //     if (currency.day === saveDate.format(`YYYY-MM-DD`)) {
+    //       currentDateindex = index
+    //       return false
+    //     }
+    //   })
+      
+    //   if (currentDateindex <= -1) {
+    //     currencies.value.push(formData)
+    //   } else {
+    //     currencies.value.splice(currentDateindex, 1, formData)
+    //   }
+    //   dbSet(dbRef(database, dbPath), currencies.value)
+      
+    //   const { user } = store.state
+    //   if (!user.blue_archive) {
+    //     user.blue_archive = {
+    //       currency: formData
+    //     }
+    //   } else {
+    //     const saveDateDay = getDayjsNoTime(formData.day)
+    //     const latestDay = getDayjsNoTime(user.blue_archive.currency.day)
+    //     const dateDiff = latestDay.diff(saveDateDay, `day`)
+
+    //     if (dateDiff <= 0) {
+    //       user.blue_archive = {
+    //         currency: formData
+    //       }
+    //     }
+    //   }
+    //   store.dispatch(`saveUser`, user)
+
+    //   // reset form
+    //   form.pyroxene = undefined
+    //   form.free_pull = undefined
+
+    //   // setLatestRecord()
+    //   updateChartData()
+    // }
   }
 
   const updateChartData = () => {

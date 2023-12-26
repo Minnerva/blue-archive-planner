@@ -1,19 +1,19 @@
 import { getAuth } from 'firebase/auth'
-import { getDatabase, ref, set, get, child, onValue } from 'firebase/database'
-
-export const DB_PATH_USER = `/users`
-export const DB_PATH_BLUE_ARCHIVE_CURRENCY = `/blue-archive-currencies`
+import { 
+  getDatabase, ref, query, push, set, get, child, onValue, 
+  orderByChild, limitToFirst, limitToLast
+ } from 'firebase/database'
 
 export const getUID = () => {
   const auth = getAuth()
   return auth.currentUser ? auth.currentUser.uid : false
 }
 
-export const getData = async (dbPath) => {
-  const database = getDatabase()
+export const getData = async (db_path) => {
+  const db = getDatabase()
 
   try {
-    const snapshot = await get(child(ref(database), dbPath))
+    const snapshot = await get(child(ref(db), db_path))
     const value = snapshot.val()
     return value ? value : false
   } catch (err) {
@@ -21,25 +21,68 @@ export const getData = async (dbPath) => {
   }
 }
 
-export const getDataListen = (dbPath, callback) => {
-  const database = getDatabase()
-  const dbRef = ref(database, dbPath)
+export const getDataListen = (db_path, callback) => {
+  const db = getDatabase()
+  const dbRef = ref(db, db_path)
   onValue(dbRef, (snapshot) => {
     const data = snapshot.val()
     callback(data)
   })
 }
 
-export const saveData = (dbPath, data) => {
-  const database = getDatabase()
-  set(ref(database, dbPath), data)
+export const saveData = (db_path, data) => {
+  const db = getDatabase()
+  set(ref(db, db_path), data)
 }
 
-export const findUser = async () => {
-  return await getData(`${DB_PATH_USER}/${getUID()}`)
+export const pushData = (db_path, data) => {
+  const db = getDatabase()
+  const dbRef = ref(db, db_path)
+  set(push(dbRef), data)
 }
 
-export const saveUser = (user) => {
-  const database = getDatabase()
-  set(ref(database, `${DB_PATH_USER}/${getUID()}`), user)
+export const setListDataListen = (db_path, callback, options = {}) => {
+  const db = getDatabase()
+  let queryRef = null
+  let order = null
+  let filter = null
+
+  if (options.order && options.order_key) {
+    switch (options.order) {
+      case `child`:
+        order = orderByChild(options.order_key)
+        break
+      case `key`:
+        order = orderByKey()
+        break
+      case `value`:
+        order = orderByValue(options.order_key)
+        break
+    }
+  }
+
+  // TODO: Add more accepted filter
+  // https://firebase.google.com/docs/database/web/lists-of-data#filtering_data
+  if (options.filter && options.filter_value) {
+    switch (options.filter) {
+      case `first`:
+        filter = limitToFirst(options.filter_value)
+        break
+      case `last`:
+        filter = limitToLast(options.filter_value)
+        break
+    }
+  }
+
+  if (options.order && options.filter) {
+    queryRef = query(ref(db, db_path), order, filter)
+  } else if (options.order) {
+    queryRef = query(ref(db, db_path), order)
+  } else if (options.filter) {
+    queryRef = query(ref(db, db_path), filter)
+  } else {
+    queryRef = query(ref(db, db_path))
+  }
+
+  onValue(queryRef, (snapshopt) => callback(snapshopt.val()))
 }

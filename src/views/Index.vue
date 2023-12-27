@@ -1,8 +1,8 @@
 <template>
   <div class="text-3xl font-bold text-center">
-    <span @click="onPrev">prev   </span>
+    <!-- <span @click="onPrev">prev   </span> -->
     <span>{{ date.format(`YYYY-MM`) }}</span>
-    <span @click="onNext">   next</span>
+    <!-- <span @click="onNext">   next</span> -->
   </div>
   
   <div class="flex justify-center">
@@ -27,12 +27,12 @@
 
         <label>
           Pyroxenes: 
-          <input type="number" v-model="form.pyroxene" :placeholder="latestData.pyroxene">
+          <input type="number" v-model="form.pyroxene" :placeholder="latest_data.pyroxene">
         </label>
 
         <label>
           Free Pulls (Ticket):
-          <input type="number" v-model="form.free_pull" :placeholder="latestData.free_pull">
+          <input type="number" v-model="form.free_pull" :placeholder="latest_data.free_pull">
         </label>
 
         <br>
@@ -44,7 +44,7 @@
 </template>
 
 <script setup>
-  import { ref, reactive, watch, onMounted } from 'vue'
+  import { ref, reactive, onMounted } from 'vue'
   import { useStore } from 'vuex'
   import dayjs from 'dayjs'
   import { find, getDayjsNoTime, getBlueArchiveCurrencyToPull } from '@/utils'
@@ -59,14 +59,14 @@
 
   const store = useStore()
   const date = ref(dayjs())
-  const currencies = ref([])
+  const currency_own = ref([])
   
   const current_year = dayjs().year()
   const current_month = dayjs().month() + 1 // due to month start at 0 to 11
   const current_day = dayjs().date()
-  const daysInMonth = date.value.daysInMonth()
-  const averageGain = 12000/daysInMonth
-  const latestData = ref({
+  const average_gain_per_month = 12000
+  const latest_data = ref({
+    date: ``,
     pyroxene: 0,
     free_pull: 0
   })
@@ -83,62 +83,58 @@
   })
 
   const setLatestRecord = () => {
-    store.dispatch(`ba-currency-own/getLatestRecordListen`, items => {
-      console.log(items)
+    store.dispatch(`ba-currency-own/setGetLatestRecordListen`, (record) => {
+      if (record) {
+        const keys = Object.keys(record)
+        if (keys.length > 0) {
+          latest_data.value = {
+            date: keys[0],
+            ...record[keys[0]]
+          }
+        }
+      }
     })
-
-    // const user = store.state.user
-    // if (user.blue_archive && user.blue_archive.currency) {
-    //   latestData.value.pyroxene = user.blue_archive.currency.pyroxene
-    //   latestData.value.free_pull = user.blue_archive.currency.free_pull
-    // }
   }
 
   const setCurrenyDataFromYearMonth = (year, month) => {
-    // const dbPath = `${DB_PATH_BLUE_ARCHIVE_CURRENCY}/${auth.currentUser.uid}/${year}-${month}`
-    // const dbData = dbRef(database, dbPath)
-    // onValue(dbData, snapshot => {
-    //   let data = snapshot.val() || []
-    //   data = data.filter(item => item) // for clearing index with null data
-    //   data.sort((a,b) => {
-    //     if (a.day > b.day) return 1
-    //     else if (a.day < b.day) return -1
-    //     else return 0
-    //   })
-
-    //   currencies.value = [...data]
-    //   updateChartData()
-    // })
+    store.dispatch(`ba-currency-own/setGetRecordsListen`, {
+      year,
+      month,
+      callback: (record) => {
+        currency_own.value = record
+        updateChartData()
+      }
+    })
   }
 
-  const changeYearMonth = (year, month) => {
-    date.value = dayjs(`${year}-${month}-01`)
-    setCurrenyDataFromYearMonth(year, month)
-  }
+  // const changeYearMonth = (year, month) => {
+  //   date.value = dayjs(`${year}-${month}-01`)
+  //   setCurrenyDataFromYearMonth(year, month)
+  // }
   
-  const onPrev = () => {
-    let toYear = date.value.year()
-    let toMonth = date.value.month()+1-1 // +1 due to month start at 0, -1 because wantting to go to previous month
+  // const onPrev = () => {
+  //   let toYear = date.value.year()
+  //   let toMonth = date.value.month()+1-1 // +1 due to month start at 0, -1 because wantting to go to previous month
 
-    if (toMonth <= 0) {
-      toMonth = 12
-      toYear--
-    }
+  //   if (toMonth <= 0) {
+  //     toMonth = 12
+  //     toYear--
+  //   }
 
-    changeYearMonth(toYear, toMonth)
-  }
+  //   changeYearMonth(toYear, toMonth)
+  // }
 
-  const onNext = () => {
-    let toYear = date.value.year()
-    let toMonth = date.value.month()+1+1 // +1 due to month start at 0, +1 because wantting to go to next month
+  // const onNext = () => {
+  //   let toYear = date.value.year()
+  //   let toMonth = date.value.month()+1+1 // +1 due to month start at 0, +1 because wantting to go to next month
 
-    if (toMonth > 12) {
-      toMonth = 1
-      toYear++
-    }
+  //   if (toMonth > 12) {
+  //     toMonth = 1
+  //     toYear++
+  //   }
 
-    changeYearMonth(toYear, toMonth)
-  }
+  //   changeYearMonth(toYear, toMonth)
+  // }
 
   const onSave = async () => {
     const form_day = getDayjsNoTime(form.day)
@@ -146,112 +142,65 @@
       pyroxene: form.pyroxene,
       free_pull: form.free_pull
     }
+
+    if (isNaN(data.pyroxene)) {
+      data.pyroxene = latest_data.value ? latest_data.value.pyroxene : 0
+    }
+    if (isNaN(data.free_pull)) {
+      data.free_pull = latest_data.value ? latest_data.value.free_pull : 0
+    }
+
     store.dispatch(`ba-currency-own/save`, {
       key: form_day.format(`YYYY-MM-DD`),
       data
     })
 
-    // if (auth.currentUser) {
-    //   const saveDate = dayjs(`${form.year}-${form.month}-${form.date}`)
-    //   const dbPath = `${DB_PATH_BLUE_ARCHIVE_CURRENCY}/${auth.currentUser.uid}/${saveDate.format(`YYYY-MM`)}`
-    //   const formData = {
-    //     pyroxene: form.pyroxene,
-    //     free_pull: form.free_pull,
-    //     day: saveDate.format(`YYYY-MM-DD`)
-    //   }
+    // reset form
+    form.pyroxene = undefined
+    form.free_pull = undefined
 
-    //   if (isNaN(formData.pyroxene)) {
-    //     formData.pyroxene = latestData.value ? latestData.value.pyroxene : 0
-    //   }
-
-    //   if (isNaN(formData.free_pull)) {
-    //     formData.free_pull = latestData.value ? latestData.value.free_pull : 0
-    //   }
-
-    //   let currentDateindex = -1
-    //   currencies.value.forEach((currency, index) => {
-    //     if (currency.day === saveDate.format(`YYYY-MM-DD`)) {
-    //       currentDateindex = index
-    //       return false
-    //     }
-    //   })
-      
-    //   if (currentDateindex <= -1) {
-    //     currencies.value.push(formData)
-    //   } else {
-    //     currencies.value.splice(currentDateindex, 1, formData)
-    //   }
-    //   dbSet(dbRef(database, dbPath), currencies.value)
-      
-    //   const { user } = store.state
-    //   if (!user.blue_archive) {
-    //     user.blue_archive = {
-    //       currency: formData
-    //     }
-    //   } else {
-    //     const saveDateDay = getDayjsNoTime(formData.day)
-    //     const latestDay = getDayjsNoTime(user.blue_archive.currency.day)
-    //     const dateDiff = latestDay.diff(saveDateDay, `day`)
-
-    //     if (dateDiff <= 0) {
-    //       user.blue_archive = {
-    //         currency: formData
-    //       }
-    //     }
-    //   }
-    //   store.dispatch(`saveUser`, user)
-
-    //   // reset form
-    //   form.pyroxene = undefined
-    //   form.free_pull = undefined
-
-    //   // setLatestRecord()
-    //   updateChartData()
-    // }
+    updateChartData()
   }
 
   const updateChartData = () => {
     const labels = []
-    const data = []
-    const predictData = []
-    const user = store.state.user
-    let currentTotal = 0
-    let latestOnlyDate = null
+    const own_data = []
+    const predict_data = []
+    const latest_date = latest_data.value ? getDayjsNoTime(latest_data.value.date) : false
 
-    if (user.blue_archive && user.blue_archive.currency) {
-      currentTotal = user.blue_archive.currency.pyroxene + (user.blue_archive.currency.free_pull * 120)
-      latestOnlyDate = getDayjsNoTime(user.blue_archive.currency.day)
-    }
-    
-    for (let i = 1; i <= daysInMonth; i++) {
-      const day = `${i}`.length === 1 ? `0${i}` : i
-      const plotDay = `${date.value.format(`YYYY-MM`)}-${day}`
-      const plotDayDate = getDayjsNoTime(`${plotDay}`)
-      labels.push(plotDay)
+    const start_date = date.value.startOf(`month`)
+    const end_date = date.value.endOf(`month`)
+    const day_amount = (start_date.diff(end_date, `day`) * -1) + 1 // reverse negative then +1 to count the start date as well
+
+    for (let i = 0; i < day_amount; i++) {
+      const plot_date = start_date.add(i, `day`)
+      const plot_date_string = plot_date.format(`YYYY-MM-DD`)
+      const plot_date_own = currency_own.value[plot_date_string]
+      let own_pull = null
+      let predict_pull = null
       
-      let totalCurrency = 0
-      const currency = find(currencies.value, `day`, plotDay)
-      if (!currency) {
-        data.push(null)
-      } else {
-        totalCurrency = getBlueArchiveCurrencyToPull((currency.pyroxene + (currency.free_pull*120)))
-        data.push(totalCurrency)
+      if (plot_date_own) {
+        own_pull = getBlueArchiveCurrencyToPull(plot_date_own.pyroxene + (plot_date_own.free_pull * 120))
       }
 
-      // will bug with 0 pyrox, but whatever
-      if (currentTotal > 0) {
-        const dateDiff = latestOnlyDate.diff(plotDayDate, `day`)
-        if (dateDiff > 0) {
-          predictData.push(null)
-        } else {
-          const predictCurrency = getBlueArchiveCurrencyToPull(((dateDiff * -1) * averageGain) + currentTotal)
-          predictData.push(predictCurrency)
+      if (latest_date) {
+        const predict_date_diff = latest_date.diff(plot_date, `day`)
+        if (predict_date_diff <= 0) {
+          predict_pull = getBlueArchiveCurrencyToPull(
+            (predict_date_diff * -1 * average_gain_per_month / plot_date.daysInMonth()) + 
+            latest_data.value.pyroxene + 
+            (latest_data.value.free_pull*120)
+          )
         }
       }
+
+      labels.push(plot_date_string)
+      own_data.push(own_pull)
+      predict_data.push(predict_pull)
     }
 
     chartProps.value.labels = labels
-    chartProps.value.data = [data, predictData]
+    chartProps.value.data = [own_data, predict_data]
   }
 
   onMounted(() => {

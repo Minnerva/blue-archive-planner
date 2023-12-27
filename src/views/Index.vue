@@ -1,8 +1,8 @@
 <template>
   <div class="text-3xl font-bold text-center">
-    <!-- <span @click="onPrev">prev   </span> -->
+    <span @click="onPrev">prev   </span>
     <span>{{ date.format(`YYYY-MM`) }}</span>
-    <!-- <span @click="onNext">   next</span> -->
+    <span @click="onNext">   next</span>
   </div>
   
   <div class="flex justify-center">
@@ -64,7 +64,7 @@
   const current_year = dayjs().year()
   const current_month = dayjs().month() + 1 // due to month start at 0 to 11
   const current_day = dayjs().date()
-  const average_gain_per_month = 12000
+  const average_gain_per_day = 400 // per month will bug with February
   const latest_data = ref({
     date: ``,
     pyroxene: 0,
@@ -107,34 +107,20 @@
     })
   }
 
-  // const changeYearMonth = (year, month) => {
-  //   date.value = dayjs(`${year}-${month}-01`)
-  //   setCurrenyDataFromYearMonth(year, month)
-  // }
+  const changeYearMonth = (new_date) => {
+    date.value = new_date
+    setCurrenyDataFromYearMonth(new_date.year(), new_date.month())
+  }
   
-  // const onPrev = () => {
-  //   let toYear = date.value.year()
-  //   let toMonth = date.value.month()+1-1 // +1 due to month start at 0, -1 because wantting to go to previous month
+  const onPrev = () => {
+    const new_date = date.value.add(-1, `month`).startOf('month')
+    changeYearMonth(new_date)
+  }
 
-  //   if (toMonth <= 0) {
-  //     toMonth = 12
-  //     toYear--
-  //   }
-
-  //   changeYearMonth(toYear, toMonth)
-  // }
-
-  // const onNext = () => {
-  //   let toYear = date.value.year()
-  //   let toMonth = date.value.month()+1+1 // +1 due to month start at 0, +1 because wantting to go to next month
-
-  //   if (toMonth > 12) {
-  //     toMonth = 1
-  //     toYear++
-  //   }
-
-  //   changeYearMonth(toYear, toMonth)
-  // }
+  const onNext = () => {
+    const new_date = date.value.add(1, `month`).startOf('month')
+    changeYearMonth(new_date)
+  }
 
   const onSave = async () => {
     const form_day = getDayjsNoTime(form.day)
@@ -175,7 +161,7 @@
     for (let i = 0; i < day_amount; i++) {
       const plot_date = start_date.add(i, `day`)
       const plot_date_string = plot_date.format(`YYYY-MM-DD`)
-      const plot_date_own = currency_own.value[plot_date_string]
+      const plot_date_own = currency_own.value ? currency_own.value[plot_date_string] : false
       let own_pull = null
       let predict_pull = null
       
@@ -187,7 +173,7 @@
         const predict_date_diff = latest_date.diff(plot_date, `day`)
         if (predict_date_diff <= 0) {
           predict_pull = getBlueArchiveCurrencyToPull(
-            (predict_date_diff * -1 * average_gain_per_month / plot_date.daysInMonth()) + 
+            (predict_date_diff * -1 * average_gain_per_day) + 
             latest_data.value.pyroxene + 
             (latest_data.value.free_pull*120)
           )

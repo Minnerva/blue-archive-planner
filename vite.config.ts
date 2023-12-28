@@ -25,5 +25,16 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, `./src`)
     }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks (id) {
+          if (id.includes(`chart.js`)) {
+            return `chart.js`
+          }
+        }
+      }
+    }
   }
 })

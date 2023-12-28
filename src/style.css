@@ -1,6 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
 @tailwind base;
 @tailwind copmonents;
 @tailwind utilities;
+
+:root {
+  --blue: #00D8FB;
+}
 
 html,
 body,
@@ -14,3 +20,16 @@ body,
   background-position: right bottom;
   background-repeat: no-repeat;
 } */
+
+.border-primary {
+  border-color: var(--blue);
+}
+
+.bg-primary {
+  background: var(--blue);
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}

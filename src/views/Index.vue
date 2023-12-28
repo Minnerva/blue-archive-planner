@@ -2,13 +2,13 @@
   <div class="grid grid-cols-7 gap-4">
     <div class="col-span-full md:col-span-5">
       <div class="flex justify-center text-center">
-        <img :src="IconLeft" class="cursor-pointer" @click="onPrev">
+        <img :src="IconLeft" class="cursor-pointer select-none" @click="onPrev">
         <span class="mx-4 text-xl md:text-3xl font-bold">{{ date.format(`YYYY-MM`) }}</span>
-        <img :src="IconRight" class="cursor-pointer" @click="onNext">
+        <img :src="IconRight" class="cursor-pointer select-none" @click="onNext">
       </div>
       
       <div class="flex justify-center">
-        <div class="w-full max-w-3xl h-72">
+        <div class="w-full h-72">
           <LineChart
             :labels="chartProps.labels"
             :data="chartProps.data"
@@ -17,34 +17,52 @@
       </div>
     </div>
     
+    <Card class="col-span-full md:col-span-2">
+      <template v-slot:body>
+        <div class="grid grid-cols-4 gap-4">
+          <div class="col-span-full">
+            <InputBase
+              v-model="form.day"
+              :icon="IconCalendar"
+              icon-title="Date"
+              type="date"
+            ></InputBase>
+          </div>
 
-    <div class="col-span-full md:col-span-2 mt-3 border border-gray-300 rounded-xl">
-      <div class="h-8 bg-slate-300 rounded-t-xl"></div>
-      <div class="bg-white rounded-b-xl">
-        <div class="p-2">
-          <label>
-            Date: 
-            <input type="date" v-model="form.day">
-          </label>
+          <div class="col-span-2">
+            <InputBase
+              v-model.number="form.pyroxene"
+              :placeholder="latest_data.pyroxene"
+              :icon="IconPyroxene"
+              icon-title="Pyroxene"
+              type="number"
+            ></InputBase>
+          </div>
 
-          <br>
+          <div class="col-span-2">
+            <InputBase
+              v-model.number="form.free_pull"
+              :placeholder="latest_data.free_pull"
+              :icon="IconRecruitmentTicket"
+              icon-title="Free Pull"
+              type="number"
+            ></InputBase>
+          </div>
 
-          <label>
-            Pyroxenes: 
-            <input type="number" v-model="form.pyroxene" :placeholder="latest_data.pyroxene">
-          </label>
-
-          <label>
-            Free Pulls (Ticket):
-            <input type="number" v-model="form.free_pull" :placeholder="latest_data.free_pull">
-          </label>
-
-          <br>
-
-          <button @click="onSave">Save</button>
+          <div class="col-span-full md:col-start-2 md:col-end-4 mt-4">
+            <!-- <button @click="onSave">Save</button> -->
+            <ButtonBase 
+              :on-click="onSave"
+              primary
+            >
+              Save
+            </ButtonBase>
+          </div>
         </div>
-      </div>
-    </div>
+
+        <img :src="AronaHead" class="h-36 mt-4 md:mt-0 md:absolute bottom-0 inset-x-0 m-auto">
+      </template>
+    </Card>
   </div>
 </template>
 
@@ -54,9 +72,15 @@
   import dayjs from 'dayjs'
   import { getDayjsNoTime, getBlueArchiveCurrencyToPull } from '@/utils'
   import LineChart from '@/components/LineChart.vue'
-
+  import Card from '@/components/Card.vue'
+  import InputBase from '@/components/input/Base.vue'
+  import ButtonBase from '@/components/button/Base.vue'
   import IconLeft from '@/assets/icons/fa-chevron-left.svg'
   import IconRight from '@/assets/icons/fa-chevron-right.svg'
+  import IconCalendar from '@/assets/icons/fa-calendar.svg'
+  import IconPyroxene from '@/assets/icons/pyroxene.webp'
+  import IconRecruitmentTicket from '@/assets/icons/recruitment-ticket.webp'
+  import AronaHead from '@/assets/arona-head.png'
 
   // TODO: Switch between pyroxene view and pull view
   // TODO: Banner List
@@ -131,6 +155,7 @@
   }
 
   const onSave = async () => {
+    console.log(`onSavew`)
     const form_day = getDayjsNoTime(form.day)
     const data = {
       pyroxene: form.pyroxene,

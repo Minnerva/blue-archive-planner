@@ -7,3 +7,10 @@ body,
 #app {
   height: 100%;
 }
+
+/* body {
+  background-image: url("@/assets/bg-mika.jpg");
+  background-size: cover;
+  background-position: right bottom;
+  background-repeat: no-repeat;
+} */

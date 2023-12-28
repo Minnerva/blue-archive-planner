@@ -1,43 +1,48 @@
 <template>
-  <div class="text-3xl font-bold text-center">
-    <span @click="onPrev">prev   </span>
-    <span>{{ date.format(`YYYY-MM`) }}</span>
-    <span @click="onNext">   next</span>
-  </div>
-  
-  <div class="flex justify-center">
-    <div class="w-full max-w-3xl h-72">
-      <LineChart
-        :labels="chartProps.labels"
-        :data="chartProps.data"
-      ></LineChart>
+  <div class="grid grid-cols-7 gap-4">
+    <div class="col-span-full md:col-span-5">
+      <div class="flex justify-center text-center">
+        <img :src="IconLeft" class="cursor-pointer" @click="onPrev">
+        <span class="mx-4 text-xl md:text-3xl font-bold">{{ date.format(`YYYY-MM`) }}</span>
+        <img :src="IconRight" class="cursor-pointer" @click="onNext">
+      </div>
+      
+      <div class="flex justify-center">
+        <div class="w-full max-w-3xl h-72">
+          <LineChart
+            :labels="chartProps.labels"
+            :data="chartProps.data"
+          ></LineChart>
+        </div>
+      </div>
     </div>
-  </div>
+    
 
-  <div class="mt-3 border border-gray-300 rounded-xl">
-    <div class="h-8 bg-slate-300 rounded-t-xl"></div>
-    <div class="bg-white rounded-b-xl">
-      <div class="p-2">
-        <label>
-          Date: 
-          <input type="date" v-model="form.day">
-        </label>
+    <div class="col-span-full md:col-span-2 mt-3 border border-gray-300 rounded-xl">
+      <div class="h-8 bg-slate-300 rounded-t-xl"></div>
+      <div class="bg-white rounded-b-xl">
+        <div class="p-2">
+          <label>
+            Date: 
+            <input type="date" v-model="form.day">
+          </label>
 
-        <br>
+          <br>
 
-        <label>
-          Pyroxenes: 
-          <input type="number" v-model="form.pyroxene" :placeholder="latest_data.pyroxene">
-        </label>
+          <label>
+            Pyroxenes: 
+            <input type="number" v-model="form.pyroxene" :placeholder="latest_data.pyroxene">
+          </label>
 
-        <label>
-          Free Pulls (Ticket):
-          <input type="number" v-model="form.free_pull" :placeholder="latest_data.free_pull">
-        </label>
+          <label>
+            Free Pulls (Ticket):
+            <input type="number" v-model="form.free_pull" :placeholder="latest_data.free_pull">
+          </label>
 
-        <br>
+          <br>
 
-        <button @click="onSave">Save</button>
+          <button @click="onSave">Save</button>
+        </div>
       </div>
     </div>
   </div>
@@ -47,8 +52,11 @@
   import { ref, reactive, onMounted } from 'vue'
   import { useStore } from 'vuex'
   import dayjs from 'dayjs'
-  import { find, getDayjsNoTime, getBlueArchiveCurrencyToPull } from '@/utils'
+  import { getDayjsNoTime, getBlueArchiveCurrencyToPull } from '@/utils'
   import LineChart from '@/components/LineChart.vue'
+
+  import IconLeft from '@/assets/icons/fa-chevron-left.svg'
+  import IconRight from '@/assets/icons/fa-chevron-right.svg'
 
   // TODO: Switch between pyroxene view and pull view
   // TODO: Banner List

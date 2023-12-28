@@ -117,7 +117,7 @@
 
   const changeYearMonth = (new_date) => {
     date.value = new_date
-    setCurrenyDataFromYearMonth(new_date.year(), new_date.month())
+    setCurrenyDataFromYearMonth(new_date.year(), new_date.month()+1) // +1 due to month() start at 0
   }
   
   const onPrev = () => {

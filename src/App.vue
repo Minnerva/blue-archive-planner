@@ -50,7 +50,7 @@
           if (!user) {
             updateUserData = {
               ign: ``,
-              active: false,
+              active: true,
               // email: auth.currentUser.email,
               created_at: currentTime,
               last_signed_in_at: currentTime
@@ -63,7 +63,10 @@
           store.dispatch(`saveUser`, updateUserData)
         }
 
-        store.commit(`setUser`, user)
+        // For some reason when user is null (new user just signed in, null data will run after the one with data)
+        if (user) {
+          store.commit(`setUser`, user)
+        }
       })
     }
   })

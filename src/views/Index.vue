@@ -155,7 +155,6 @@
   }
 
   const onSave = async () => {
-    console.log(`onSavew`)
     const form_day = getDayjsNoTime(form.day)
     const data = {
       pyroxene: form.pyroxene,

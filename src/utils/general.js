@@ -77,3 +77,7 @@ export const getOptionsDay = (year, month) => {
 export const getBlueArchiveCurrencyToPull = (totalCurrency) => {
   return Math.floor(totalCurrency/120)
 }
+
+export const formatCurrency = (number) => {
+  return new Intl.NumberFormat(`en-US`, {}).format(number)
+}

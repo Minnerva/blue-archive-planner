@@ -19,6 +19,8 @@
     
     <Card class="col-span-full md:col-span-2">
       <template v-slot:body>
+        <div class="mb-3 text-md md:text-xl font-bold">Add</div>
+
         <div class="grid grid-cols-4 gap-4">
           <div class="col-span-full">
             <InputBase
@@ -60,7 +62,55 @@
           </div>
         </div>
 
-        <img :src="AronaHead" class="h-36 mt-4 md:mt-0 md:absolute bottom-0 inset-x-0 m-auto">
+        <img :src="AronaHead" class="h-32 mt-4 md:mt-0 md:absolute bottom-0 inset-x-0 m-auto">
+      </template>
+    </Card>
+
+    <Card class="h-72 col-span-full overflow-auto md:col-span-3">
+      <template v-slot:body>
+        <div class="text-md0 md:text-xl font-bold">History</div>
+
+        <div class="flow-root">
+          <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+            <li v-if="!currency_own" class="py-3 sm:py-4">No record found.</li>
+
+            <li
+              v-else
+              v-for="(c, c_key) in currency_own" :key="c_key"
+              class="py-3 sm:py-4"
+            >
+              <div class="flex items-center">
+                <div class="flex-shrink-0">
+                  <span
+                    :class="getHistoryCurrentDateClasses(c_key)"
+                  >{{ c_key }}</span>
+                </div>
+
+                <div class="flex-1 min-w-0 ms-4">
+                  <div class="flex">
+                    <img 
+                      class="w-8"
+                      :src="IconPyroxene"
+                      title="Pyroxene"
+                    >
+                    <span>{{ formatCurrency(c.pyroxene) }}</span>
+                  </div>
+                </div>
+
+                <div class="flex-1 min-w-0 ms-4">
+                  <div class="flex">
+                    <img 
+                      class="w-8"
+                      :src="IconRecruitmentTicket"
+                      title="Pull Ticket"
+                    >
+                    <span>{{ formatCurrency(c.free_pull) }}</span>
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
       </template>
     </Card>
   </div>
@@ -70,7 +120,7 @@
   import { ref, reactive, onMounted } from 'vue'
   import { useStore } from 'vuex'
   import dayjs from 'dayjs'
-  import { getDayjsNoTime, getBlueArchiveCurrencyToPull } from '@/utils'
+  import { getDayjsNoTime, getBlueArchiveCurrencyToPull, formatCurrency } from '@/utils'
   import LineChart from '@/components/LineChart.vue'
   import Card from '@/components/Card.vue'
   import InputBase from '@/components/input/Base.vue'
@@ -91,6 +141,7 @@
 
   const store = useStore()
   const date = ref(dayjs())
+  const current_date = ref(dayjs())
   const currency_own = ref([])
   
   const current_year = dayjs().year()
@@ -113,6 +164,13 @@
     labels: [],
     data: []
   })
+
+  const getHistoryCurrentDateClasses = (history_date) => {
+    if (history_date === current_date.value.format(`YYYY-MM-DD`)) {
+      return [`text-primary`]
+    }
+    return []
+  }
 
   const setLatestRecord = () => {
     store.dispatch(`ba-currency-own/setGetLatestRecordListen`, (record) => {

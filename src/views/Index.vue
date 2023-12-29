@@ -69,48 +69,9 @@
     <Card class="h-72 col-span-full overflow-auto md:col-span-3">
       <template v-slot:body>
         <div class="text-md0 md:text-xl font-bold">History</div>
-
-        <div class="flow-root">
-          <ul class="divide-y divide-gray-200 dark:divide-gray-700">
-            <li v-if="!currency_own" class="py-3 sm:py-4">No record found.</li>
-
-            <li
-              v-else
-              v-for="(c, c_key) in currency_own" :key="c_key"
-              class="py-3 sm:py-4"
-            >
-              <div class="flex items-center">
-                <div class="flex-shrink-0">
-                  <span
-                    :class="getHistoryCurrentDateClasses(c_key)"
-                  >{{ c_key }}</span>
-                </div>
-
-                <div class="flex-1 min-w-0 ms-4">
-                  <div class="flex">
-                    <img 
-                      class="w-8"
-                      :src="IconPyroxene"
-                      title="Pyroxene"
-                    >
-                    <span>{{ formatCurrency(c.pyroxene) }}</span>
-                  </div>
-                </div>
-
-                <div class="flex-1 min-w-0 ms-4">
-                  <div class="flex">
-                    <img 
-                      class="w-8"
-                      :src="IconRecruitmentTicket"
-                      title="Pull Ticket"
-                    >
-                    <span>{{ formatCurrency(c.free_pull) }}</span>
-                  </div>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>
+        <ListHistory
+          :items="histories"
+        ></ListHistory>
       </template>
     </Card>
   </div>
@@ -120,11 +81,12 @@
   import { ref, reactive, onMounted } from 'vue'
   import { useStore } from 'vuex'
   import dayjs from 'dayjs'
-  import { getDayjsNoTime, getBlueArchiveCurrencyToPull, formatCurrency } from '@/utils'
+  import { getDayjsNoTime, getBlueArchiveCurrencyToPull } from '@/utils'
   import LineChart from '@/components/LineChart.vue'
   import Card from '@/components/Card.vue'
   import InputBase from '@/components/input/Base.vue'
   import ButtonBase from '@/components/button/Base.vue'
+  import ListHistory from '@/components/list/History.vue'
   import IconLeft from '@/assets/icons/fa-chevron-left.svg'
   import IconRight from '@/assets/icons/fa-chevron-right.svg'
   import IconCalendar from '@/assets/icons/fa-calendar.svg'
@@ -137,12 +99,11 @@
   // TODO: Able to select Banner to pull
   // TODO: Able to add pyrox use at specific date 
   // TODO: Able to delete add pyrox use
-  // TODO: Remove email and has a page to input in game name instead (required for active account)
 
   const store = useStore()
   const date = ref(dayjs())
-  const current_date = ref(dayjs())
   const currency_own = ref([])
+  const histories = ref([])
   
   const current_year = dayjs().year()
   const current_month = dayjs().month() + 1 // due to month start at 0 to 11
@@ -165,13 +126,6 @@
     data: []
   })
 
-  const getHistoryCurrentDateClasses = (history_date) => {
-    if (history_date === current_date.value.format(`YYYY-MM-DD`)) {
-      return [`text-primary`]
-    }
-    return []
-  }
-
   const setLatestRecord = () => {
     store.dispatch(`ba-currency-own/setGetLatestRecordListen`, (record) => {
       if (record) {
@@ -186,6 +140,50 @@
     })
   }
 
+  const setLatestRecordBeforeMonth = (year, month) => {
+    store.dispatch(`ba-currency-own/setGetLatestBeforeMonthListener`, {
+      year,
+      month,
+      callback: (record) => {
+        const history_data = []
+        let keys = []
+        let keys_length = 0
+
+        if (currency_own.value) {
+          keys = Object.keys(currency_own.value)
+          keys.reverse()
+          keys_length = keys.length
+        }
+        
+        for (let i = 0; i < keys_length; i++) {
+          const own_data = currency_own.value[keys[i]]
+          let diff_data = currency_own.value[keys[i+1]]
+          const history = {
+            date: keys[i],
+            pyroxene: own_data.pyroxene,
+            free_pull: own_data.free_pull,
+            diff_pyroxene: null,
+            diff_free_pull: null
+          }
+
+          // expected diff_data to be null on the latest record of each month
+          if (!diff_data && record) {
+            diff_data = record[Object.keys(record)[0]]
+          }
+
+          if (diff_data) {
+            history.diff_pyroxene = own_data.pyroxene - diff_data.pyroxene
+            history.diff_free_pull = own_data.free_pull - diff_data.free_pull
+          }
+          
+          history_data.push(history)
+        }
+        
+        histories.value = history_data
+      }
+    })
+  }
+
   const setCurrenyDataFromYearMonth = (year, month) => {
     store.dispatch(`ba-currency-own/setGetRecordsListen`, {
       year,
@@ -193,6 +191,7 @@
       callback: (record) => {
         currency_own.value = record
         updateChartData()
+        setLatestRecordBeforeMonth(year, month)
       }
     })
   }

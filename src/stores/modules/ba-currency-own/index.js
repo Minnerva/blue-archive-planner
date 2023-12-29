@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import { getData, getDataListen, saveData, setListDataListen } from '@/utils'
 
 export default {
@@ -6,7 +7,8 @@ export default {
     DB_PATH_BA_CURRENCY_OWN: `/ba-currency-own`,
     
     listGetListener: false,
-    listLatestListener: false
+    listLatestListener: false,
+    listLatestBeforeMonthListener: false,
   },
   mutations: {
     
@@ -30,9 +32,13 @@ export default {
         callback,
         {
           order: `key`,
-          filter: `between`,
-          filter_start: `${year}-${month}-00`,
-          filter_end: `${year}-${month}-99`
+          filters: [
+            {
+              type: `between`,
+              start: `${year}-${month}-00`,
+              end: `${year}-${month}-99`
+            }
+          ]
         }
       )
     },
@@ -47,8 +53,37 @@ export default {
         `${state.DB_PATH_BA_CURRENCY_OWN}/${rootState.uid}`,
         callback,
         {
-          filter: `last`,
-          filter_value: 1
+          filters: [
+            {
+              type: `last`,
+              value: 1
+            }
+          ]
+        }
+      )
+    },
+    setGetLatestBeforeMonthListener ({ state, rootState }, { year, month, callback }) {
+      const { listLatestBeforeMonthListener } = state
+      if (listLatestBeforeMonthListener) {
+        listLatestBeforeMonthListener.off()
+        state.listLatestBeforeMonthListener = false
+      }
+
+      state.listLatestBeforeMonthListener = setListDataListen(
+        `${state.DB_PATH_BA_CURRENCY_OWN}/${rootState.uid}`,
+        callback,
+        {
+          order: `key`,
+          filters: [
+            {
+              type: `endBefore`,
+              value: `${year}-${month}-00`
+            },
+            {
+              type: `last`,
+              value: 1
+            }
+          ]
         }
       )
     }

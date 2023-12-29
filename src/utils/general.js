@@ -78,6 +78,15 @@ export const getBlueArchiveCurrencyToPull = (totalCurrency) => {
   return Math.floor(totalCurrency/120)
 }
 
+export const getBlueArchiveTotalPull = ({ pyroxene, free_pull }) => {
+  const pyroxene_pull = Math.floor(pyroxene/120)
+  return pyroxene_pull + free_pull
+}
+
+export const getBlueArchiveSpark = (total_pull) => {
+  return Math.floor(total_pull/200)
+}
+
 export const formatCurrency = (number) => {
   return new Intl.NumberFormat(`en-US`, {}).format(number)
 }

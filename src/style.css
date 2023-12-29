@@ -6,6 +6,8 @@
 
 :root {
   --blue: #00D8FB;
+  --green: #198754;
+  --red: #DC3545;
 }
 
 html,
@@ -31,6 +33,12 @@ body,
 
 .text-primary {
   color: var(--blue);
+}
+.text-success {
+  color: var(--green);
+}
+.text-danger {
+  color: var(--red);
 }
 
 input::-webkit-outer-spin-button,

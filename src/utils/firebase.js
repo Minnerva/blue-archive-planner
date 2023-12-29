@@ -1,7 +1,8 @@
 import { getAuth } from 'firebase/auth'
 import { 
   getDatabase, ref, query, push, set, get, child, onValue, 
-  orderByKey, orderByChild, limitToFirst, limitToLast, startAt, endAt
+  orderByKey, orderByChild, limitToFirst, limitToLast, startAt, endAt,
+  endBefore
  } from 'firebase/database'
 
 export const getUID = () => {
@@ -42,6 +43,7 @@ export const pushData = (db_path, data) => {
 }
 
 export const setListDataListen = (db_path, callback, options = {}) => {
+  if (!options.filters) options.filters = []
   const db = getDatabase()
   const queryConstraints = []
   let queryRef = null
@@ -60,20 +62,27 @@ export const setListDataListen = (db_path, callback, options = {}) => {
 
   // TODO: Add more accepted filter
   // https://firebase.google.com/docs/database/web/lists-of-data#filtering_data
-  switch (options.filter) {
-    case `first`:
-      queryConstraints.push(limitToFirst(options.filter_value))
-      break
-    case `last`:
-      queryConstraints.push(limitToLast(options.filter_value))
-      break
-    case `between`:
-      // required order
-      if (options.order === `key`) {
-        queryConstraints.push(startAt(options.filter_start))
-        queryConstraints.push(endAt(options.filter_end))
-      }
-  }
+  options.filters.forEach(filter => {
+    switch (filter.type) {
+      case `first`:
+        queryConstraints.push(limitToFirst(filter.value))
+        break
+      case `last`:
+        queryConstraints.push(limitToLast(filter.value))
+        break
+      case `between`:
+        if (options.order === `key`) { // required order
+          queryConstraints.push(startAt(filter.start))
+          queryConstraints.push(endAt(filter.end))
+        }
+        break
+      case `endBefore`:
+        if (options.order === `key`) { // required order
+          queryConstraints.push(endBefore(filter.value))
+        }
+        break
+    }
+  })
 
   queryRef = query(ref(db, db_path), ...queryConstraints)
   onValue(queryRef, (snapshopt) => callback(snapshopt.val()))

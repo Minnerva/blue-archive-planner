@@ -5,10 +5,13 @@ export default {
   state: {
     DB_PATH_BA_BANNER_PULL: `/ba-banner-pull`,
     
+    banner_pull: false,
     listGetListener: false,
   },
   mutations: {
-    
+    setBannerPull (state, banner_pull) {
+      state.banner_pull = banner_pull ? {...banner_pull} : false
+    }
   },
   actions: {
     save ({ state, rootState }, { key, data }) {

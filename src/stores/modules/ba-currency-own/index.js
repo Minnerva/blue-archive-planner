@@ -1,5 +1,4 @@
-import dayjs from 'dayjs'
-import { getData, getDataListen, saveData, setListDataListen } from '@/utils'
+import { saveData, setListDataListen } from '@/utils'
 
 export default {
   namespaced: true,
@@ -10,13 +9,7 @@ export default {
     listLatestListener: false,
     listLatestBeforeMonthListener: false,
   },
-  mutations: {
-    
-  },
   actions: {
-    get () {
-
-    },
     save ({ state, rootState }, { key, data }) {
       saveData(`${state.DB_PATH_BA_CURRENCY_OWN}/${rootState.uid}/${key}`, data)
     },

@@ -109,10 +109,8 @@
   import MikaPortrait from '@/assets/students/mika-portrait.webp'
 
   // TODO: Switch between pyroxene view and pull view
-  // TODO: Banner List
   // TODO: Able to select Banner to pull
-  // TODO: Able to add pyrox use at specific date 
-  // TODO: (?) Able to delete add pyrox use
+  // TODO: Able to add pyrox use at specific date
 
   const store = useStore()
   const date = ref(dayjs())
@@ -210,6 +208,12 @@
     })
   }
 
+  const setGetBannerPullListener = () => {
+    store.dispatch(`ba-banner-pull/setGetRecordsListen`, (record) => {
+      store.commit(`ba-banner-pull/setBannerPull`, record)
+    })
+  }
+
   const changeYearMonth = (new_date) => {
     date.value = new_date
     setCurrenyDataFromYearMonth(new_date.year(), new_date.month()+1) // +1 due to month() start at 0
@@ -294,6 +298,7 @@
 
   onMounted(() => {
     setLatestRecord()
+    setGetBannerPullListener()
     setCurrenyDataFromYearMonth(current_year, current_month)
   })
 </script>

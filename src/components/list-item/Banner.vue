@@ -21,7 +21,7 @@
 </template>
 
 <script setup>
-  import { ref } from 'vue'
+  import { ref, computed, watch } from 'vue'
   import { useStore } from 'vuex' 
   import { find } from '@/utils'
   import InputBase from '@/components/input/Base.vue'
@@ -31,11 +31,22 @@
   const props = defineProps({
     item: {
       required: true
-    }
+    },
+    bannerPull: {}
   })
   const store = useStore()
   const pull = ref(null)
   const student = find(dataStudents, { key: props.item.student_key })
+  
+  watch(props, () => {
+    setPullAmount()
+  })
+
+  const setPullAmount = () => {
+    const { banner_pull } = store.state[`ba-banner-pull`]
+    const this_pull = banner_pull[props.item.key]
+    pull.value = this_pull ? this_pull : null
+  }
 
   const getDayDiff = () => {
     if (props.item.diff <= 0) {

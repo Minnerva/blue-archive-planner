@@ -9,6 +9,7 @@
       >
         <ListItemBanner
           :item="banner"
+          :banner-pull="banner_pull[banner.key]"
         ></ListItemBanner>
       </li>
     </ul>
@@ -16,7 +17,7 @@
 </template>
 
 <script setup>
-  import { ref, onMounted } from 'vue'
+  import { computed } from 'vue'
   import { useStore } from 'vuex' 
   import dayjs from 'dayjs'
   import { getDayjsNoTime } from '@/utils'
@@ -24,6 +25,7 @@
   import ListItemBanner from '@/components/list-item/Banner.vue'
   
   const store = useStore()
+  const banner_pull = computed(() => store.state[`ba-banner-pull`].banner_pull)
   const today = getDayjsNoTime(dayjs().format(`YYYY-MM-DD`))
   const banners = dataBanners
   .map(banner => {
@@ -32,14 +34,4 @@
     return banner
   })
   .filter(banner => banner.diff > banner.duration*-1)
-
-  const setGetListener = () => {
-    store.dispatch(`ba-banner-pull/setGetRecordsListen`, (record) => {
-      console.log(record)
-    })
-  }
-
-  onMounted(() => {
-    setGetListener()
-  })
 </script>

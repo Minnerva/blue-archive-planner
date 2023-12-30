@@ -1,4 +1,4 @@
-import { getData, getDataListen, saveData, setListDataListen } from '@/utils'
+import { find, saveData, setListDataListen } from '@/utils'
 
 export default {
   namespaced: true,
@@ -11,6 +11,12 @@ export default {
   mutations: {
     setBannerPull (state, banner_pull) {
       state.banner_pull = banner_pull ? {...banner_pull} : false
+    }
+  },
+  getters: {
+    find: (state) => (key) => {
+      const item = state.banner_pull[key]
+      return item ? item : null
     }
   },
   actions: {

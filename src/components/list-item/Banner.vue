@@ -21,7 +21,7 @@
 </template>
 
 <script setup>
-  import { ref, computed, watch } from 'vue'
+  import { ref, watch, onMounted } from 'vue'
   import { useStore } from 'vuex' 
   import { find } from '@/utils'
   import InputBase from '@/components/input/Base.vue'
@@ -43,9 +43,7 @@
   })
 
   const setPullAmount = () => {
-    const { banner_pull } = store.state[`ba-banner-pull`]
-    const this_pull = banner_pull[props.item.key]
-    pull.value = this_pull ? this_pull : null
+    pull.value = store.getters[`ba-banner-pull/find`](props.item.key)
   }
 
   const getDayDiff = () => {
@@ -62,6 +60,7 @@
     
     if (!pull.value || pull.value <= 0) {
       store.dispatch(`ba-banner-pull/delete`, key)
+      pull.value = null
     } else {
       store.dispatch(`ba-banner-pull/save`, {
         key,
@@ -69,4 +68,9 @@
       })
     }
   }
+
+  // for hot reload
+  onMounted(() => {
+    setPullAmount()
+  })
 </script>

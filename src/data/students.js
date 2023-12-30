@@ -1,40 +1,118 @@
-import ShirokoSwimsuitIcon from '@/assets/students/shiroko-swimsuit-icon.webp'
-import HimariIcon from '@/assets/students/himari-icon.webp'
-import KayokoNewYearIcon from '@/assets/students/kayoko-new-year-icon.webp'
-import MiyakoSwimsuitIcon from '@/assets/students/miyako-swimsuit-icon.webp'
-import SakiSwimsuitIcon from '@/assets/students/saki-swimsuit-icon.webp'
-
 let students = [
   {
-    name: `Kayoko`,
-    alter: `New Year`,
-    icon: KayokoNewYearIcon
+    name: `Akane`,
+    alter: `Bunny`
+  },
+  {
+    name: `Asuna`,
+    alter: `Bunny`
+  },
+  {
+    name: `Hanako`,
+    alter: `Swimsuit`
+  },
+  {
+    name: `Hare`,
+    alter: `Camp`
+  },
+  {
+    name: `Haruna`,
+    alter: `Tracksuit`
   },
   {
     name: `Himari`,
-    alter: ``,
-    icon: HimariIcon
+    alter: ``
+  },
+  {
+    name: `Hina`,
+    alter: `Swimsuit`
+  },
+  {
+    name: `Hinata`,
+    alter: `Swimsuit`
+  },
+  {
+    name: `Iori`,
+    alter: `Swimsuit`
+  },
+  {
+    name: `Karin`,
+    alter: `Bunny`
+  },
+  {
+    name: `Kayoko`,
+    alter: `New Year`
+  },
+  {
+    name: `Kikyou`,
+    alter: ``
+  },
+  {
+    name: `Kotama`,
+    alter: `Camp`
+  },
+  {
+    name: `Mari`,
+    alter: `Tracksuit`
+  },
+  {
+    name: `Mimori`,
+    alter: `Swimsuit`
+  },
+  {
+    name: `Misaka Mikoto`,
+    alter: ``
   },
   {
     name: `Miyako`,
-    alter: `Swimsuit`,
-    icon: MiyakoSwimsuitIcon
+    alter: `Swimsuit`
+  },
+  {
+    name: `Neru`,
+    alter: `Bunny`
+  },
+  {
+    name: `Nonomi`,
+    alter: `Swimsuit`
+  },
+  {
+    name: `Renge`,
+    alter: ``
   },
   {
     name: `Saki`,
-    alter: `Swimsuit`,
-    icon: SakiSwimsuitIcon
+    alter: `Swimsuit`
   },
   {
     name: `Shiroko`,
-    alter: `Swimsuit`,
-    icon: ShirokoSwimsuitIcon
+    alter: `Swimsuit`
   },
+  {
+    name: `Shokuhou Misaki`,
+    alter: ``
+  },
+  {
+    name: `Ui`,
+    alter: `Swimsuit`
+  },
+  {
+    name: `Wakamo`,
+    alter: `Swimsuit`
+  },
+  {
+    name: `Yukari`,
+    alter: ``
+  },
+  {
+    name: `Yuuka`,
+    alter: `Tracksuit`
+  }
 ]
 
 students = students.map(student => {
   student.full_name = student.alter ? `${student.name} (${student.alter})` : student.name
   student.key = student.full_name.replace(/[()]/g, ``).replace(/\s/g, `-`).toLocaleLowerCase()
+  student.icon = new URL(`/src/assets/students/${student.key}-icon.webp`, import.meta.url).href
   return student
 })
 

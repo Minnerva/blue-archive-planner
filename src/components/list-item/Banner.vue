@@ -43,7 +43,8 @@
   })
 
   const setPullAmount = () => {
-    pull.value = store.getters[`ba-banner-pull/find`](props.item.key)
+    const banner_pull = store.getters[`ba-banner-pull/find`](props.item.key)
+    pull.value = banner_pull ? banner_pull.pull : null
   }
 
   const getDayDiff = () => {
@@ -64,7 +65,11 @@
     } else {
       store.dispatch(`ba-banner-pull/save`, {
         key,
-        data: pull.value
+        data: {
+          date: banner.date,
+          student_key: banner.student_key,
+          pull: pull.value
+        }
       })
     }
   }

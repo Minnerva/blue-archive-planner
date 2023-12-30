@@ -1,4 +1,4 @@
-import { find, saveData, setListDataListen } from '@/utils'
+import { saveData, setListDataListen } from '@/utils'
 
 export default {
   namespaced: true,
@@ -6,7 +6,7 @@ export default {
     DB_PATH_BA_BANNER_PULL: `/ba-banner-pull`,
     
     banner_pull: false,
-    listGetListener: false,
+    listGetUpcomingListener: false,
   },
   mutations: {
     setBannerPull (state, banner_pull) {
@@ -26,16 +26,25 @@ export default {
     delete ({ state, rootState }, key) {
       saveData(`${state.DB_PATH_BA_BANNER_PULL}/${rootState.uid}/${key}`, null)
     },
-    setGetRecordsListen ({ state, rootState }, callback) {
-      const { listGetListener } = state
-      if (listGetListener) {
-        listGetListener.off()
-        state.listGetListener = false
+    setGetUpcomingRecordsListen ({ state, rootState }, callback) {
+      const { listGetUpcomingListener } = state
+      if (listGetUpcomingListener) {
+        listGetUpcomingListener.off()
+        state.listGetUpcomingListener = false
       }
 
       state.listLatestListener = setListDataListen(
         `${state.DB_PATH_BA_BANNER_PULL}/${rootState.uid}`,
-        callback
+        callback,
+        {
+          order: `key`,
+          filters: [
+            {
+              type: `startAt`,
+              value: `2023-12-00`
+            }
+          ]
+        }
       )
     },
   }

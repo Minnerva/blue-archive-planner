@@ -208,8 +208,9 @@
     })
   }
 
-  const setGetBannerPullListener = () => {
-    store.dispatch(`ba-banner-pull/setGetRecordsListen`, (record) => {
+  const setGetUpcomingBannerPullListener = () => {
+    store.dispatch(`ba-banner-pull/setGetUpcomingRecordsListen`, (record) => {
+      console.log(record)
       store.commit(`ba-banner-pull/setBannerPull`, record)
     })
   }
@@ -298,7 +299,7 @@
 
   onMounted(() => {
     setLatestRecord()
-    setGetBannerPullListener()
+    setGetUpcomingBannerPullListener()
     setCurrenyDataFromYearMonth(current_year, current_month)
   })
 </script>

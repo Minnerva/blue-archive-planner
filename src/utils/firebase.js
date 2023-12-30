@@ -81,6 +81,11 @@ export const setListDataListen = (db_path, callback, options = {}) => {
           queryConstraints.push(endBefore(filter.value))
         }
         break
+      case `startAt`:
+        if (options.order === `key`) { // required order
+          queryConstraints.push(startAt(filter.value))
+        }
+        break
     }
   })
 

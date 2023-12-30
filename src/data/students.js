@@ -1,17 +1,35 @@
-import ShirokoSwimsuitPortrait from '@/assets/students/shiroko-swimsuit-icon.webp'
-import HimariPortrait from '@/assets/students/himari-icon.webp'
+import ShirokoSwimsuitIcon from '@/assets/students/shiroko-swimsuit-icon.webp'
+import HimariIcon from '@/assets/students/himari-icon.webp'
+import KayokoNewYearIcon from '@/assets/students/kayoko-new-year-icon.webp'
+import MiyakoSwimsuitIcon from '@/assets/students/miyako-swimsuit-icon.webp'
+import SakiSwimsuitIcon from '@/assets/students/saki-swimsuit-icon.webp'
 
 let students = [
   {
-    name: `Shiroko`,
-    alter: `Swimsuit`,
-    icon: ShirokoSwimsuitPortrait
+    name: `Kayoko`,
+    alter: `New Year`,
+    icon: KayokoNewYearIcon
   },
   {
     name: `Himari`,
     alter: ``,
-    icon: HimariPortrait
-  }
+    icon: HimariIcon
+  },
+  {
+    name: `Miyako`,
+    alter: `Swimsuit`,
+    icon: MiyakoSwimsuitIcon
+  },
+  {
+    name: `Saki`,
+    alter: `Swimsuit`,
+    icon: SakiSwimsuitIcon
+  },
+  {
+    name: `Shiroko`,
+    alter: `Swimsuit`,
+    icon: ShirokoSwimsuitIcon
+  },
 ]
 
 students = students.map(student => {

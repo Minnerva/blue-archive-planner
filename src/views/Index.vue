@@ -93,7 +93,7 @@
   import { ref, reactive, onMounted } from 'vue'
   import { useStore } from 'vuex'
   import dayjs from 'dayjs'
-  import { getDayjsNoTime, getBlueArchiveCurrencyToPull } from '@/utils'
+  import { getDayjsNoTime, getBlueArchiveCurrencyToPull, getBlueArchiveTotalPull } from '@/utils'
   import LineChart from '@/components/LineChart.vue'
   import Card from '@/components/Card.vue'
   import InputBase from '@/components/input/Base.vue'
@@ -109,7 +109,6 @@
   import MikaPortrait from '@/assets/students/mika-portrait.webp'
 
   // TODO: Switch between pyroxene view and pull view
-  // TODO: Able to select Banner to pull
   // TODO: Able to add pyrox use at specific date
 
   const store = useStore()
@@ -120,7 +119,7 @@
   const current_year = dayjs().year()
   const current_month = dayjs().month() + 1 // due to month start at 0 to 11
   const current_day = dayjs().date()
-  const average_gain_per_day = 400 // per month will bug with February
+  const average_gain_per_day = 12000/30 // per month will bug with February
   const latest_data = ref({
     date: ``,
     pyroxene: 0,
@@ -210,7 +209,6 @@
 
   const setGetUpcomingBannerPullListener = () => {
     store.dispatch(`ba-banner-pull/setGetUpcomingRecordsListen`, (record) => {
-      console.log(record)
       store.commit(`ba-banner-pull/setBannerPull`, record)
     })
   }
@@ -261,6 +259,11 @@
     const own_data = []
     const predict_data = []
     const latest_date = latest_data.value ? getDayjsNoTime(latest_data.value.date) : false
+    const being_month_latest_date = latest_date ? latest_date.startOf('month') : false
+    const banner_pull = store.state[`ba-banner-pull`].banner_pull
+    const banner_keys = Object.keys(banner_pull)
+    let estimate_pyroxene = false
+    let estimate_banner_old_flag = false
 
     const start_date = date.value.startOf(`month`)
     const end_date = date.value.endOf(`month`)
@@ -274,17 +277,60 @@
       let predict_pull = null
       
       if (plot_date_own) {
-        own_pull = getBlueArchiveCurrencyToPull(plot_date_own.pyroxene + (plot_date_own.free_pull * 120))
+        own_pull = getBlueArchiveTotalPull({
+          pyroxene: plot_date_own.pyroxene, 
+          free_pull: plot_date_own.free_pull
+        })
       }
 
       if (latest_date) {
+        // banner_pull
         const predict_date_diff = latest_date.diff(plot_date, `day`)
         if (predict_date_diff <= 0) {
-          predict_pull = getBlueArchiveCurrencyToPull(
-            (predict_date_diff * -1 * average_gain_per_day) + 
-            latest_data.value.pyroxene + 
-            (latest_data.value.free_pull*120)
-          )
+          
+          if (estimate_pyroxene === false) {
+            estimate_pyroxene = (predict_date_diff * -1 * average_gain_per_day) + latest_data.value.pyroxene
+          } else {
+            estimate_pyroxene += average_gain_per_day
+          }
+
+          if (banner_pull) {
+            if (!estimate_banner_old_flag) {
+              banner_keys.forEach(banner_key => {
+                const pull_data = banner_pull[banner_key]
+                const pull_date = getDayjsNoTime(pull_data.date)
+                const pull_diff_latest = pull_date.diff(latest_date, `day`)
+
+                const pull_date_month = pull_date.startOf(`month`)
+                const plot_date_month = plot_date.startOf(`month`)
+                const pull_diff_plot_month = pull_date_month.diff(plot_date_month, `month`)
+
+                if (pull_diff_latest > 0 && pull_diff_plot_month < 0) {
+                  estimate_pyroxene -= pull_data.pull * 120
+                }
+              })
+              estimate_banner_old_flag = true
+            }
+
+            banner_keys.forEach(banner_key => {
+              const pull_data = banner_pull[banner_key]
+              const pull_date = getDayjsNoTime(pull_data.date)
+              const pull_diff_latest = pull_date.diff(latest_date, `day`)
+              const pull_diff_future_day = pull_date.diff(plot_date, `day`)
+              const pull_diff_future_month = pull_date.diff(plot_date, `month`)
+
+              if (pull_diff_latest > 0) {
+                if (pull_diff_future_month === 0 && pull_diff_future_day === 0) {
+                  estimate_pyroxene -= pull_data.pull * 120
+                }
+              }
+            })
+          }
+
+          predict_pull = getBlueArchiveTotalPull({
+            pyroxene: estimate_pyroxene,
+            free_pull: latest_data.value.free_pull
+          })
         }
       }
 

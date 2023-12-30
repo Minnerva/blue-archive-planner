@@ -87,8 +87,7 @@ export const getBlueArchiveCurrencyToPull = (totalCurrency) => {
 }
 
 export const getBlueArchiveTotalPull = ({ pyroxene, free_pull }) => {
-  const pyroxene_pull = Math.floor(pyroxene/120)
-  return pyroxene_pull + free_pull
+  return Math.floor(pyroxene/120) + free_pull
 }
 
 export const getBlueArchiveSpark = (total_pull) => {

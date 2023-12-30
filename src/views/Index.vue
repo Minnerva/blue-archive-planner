@@ -80,6 +80,12 @@
         <ListBanner></ListBanner>
       </template>
     </Card>
+
+    <div class="col-span-full md:col-span-1 xl:col-span-2 grid items-center content-end">
+      <div class="text-center">
+        <img class="inline-block max-w-36" :src="MikaPortrait" title="My Wife!!!">
+      </div>
+    </div>
   </div>
 </template>
 
@@ -100,6 +106,7 @@
   import IconPyroxene from '@/assets/icons/pyroxene.webp'
   import IconRecruitmentTicket from '@/assets/icons/recruitment-ticket.webp'
   import AronaHead from '@/assets/arona-head.png'
+  import MikaPortrait from '@/assets/students/mika-portrait.webp'
 
   // TODO: Switch between pyroxene view and pull view
   // TODO: Banner List

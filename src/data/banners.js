@@ -2,17 +2,17 @@ let banners = [
   {
     date: `2024-01-16`,
     duration: 7,
-    student: `shiroko-swimsuit`
+    student_key: `shiroko-swimsuit`
   },
   {
     date: `2024-05-30`,
     duration: 7,
-    student: `himari`
+    student_key: `himari`
   }
 ]
 
 banners = banners.map(banner => {
-  banner.key = `${banner.date}-${banner.student}`
+  banner.key = `${banner.date}-${banner.student_key}`
   return banner
 })
 banners.sort((a,b) => {

@@ -1,7 +1,7 @@
 <template>
   <div class="grid grid-cols-10 gap-3 md:items-center">
     <div class="col-span-2 lg:col-span-2">
-      <img :src="student.portrait" :title="student.full_name">
+      <img :src="student.icon" :title="student.full_name">
     </div>
     <div class="col-span-8 lg:col-span-8">
       <div>{{ item.date }}{{ getDayDiff() }}</div>
@@ -22,6 +22,7 @@
 
 <script setup>
   import { ref } from 'vue'
+  import { useStore } from 'vuex' 
   import { find } from '@/utils'
   import InputBase from '@/components/input/Base.vue'
   import dataStudents from '@/data/students.js'
@@ -32,9 +33,9 @@
       required: true
     }
   })
+  const store = useStore()
   const pull = ref(null)
-  const student = find(dataStudents, { key: props.item.student })
-  console.log(student)
+  const student = find(dataStudents, { key: props.item.student_key })
 
   const getDayDiff = () => {
     if (props.item.diff <= 0) {
@@ -45,10 +46,16 @@
   }
 
   const onChange = () => {
+    const { item: banner } = props
+    const key = banner.key
+    
     if (!pull.value || pull.value <= 0) {
-      // TODO: Delete record
+      store.dispatch(`ba-banner-pull/delete`, key)
     } else {
-      // TODO: Add record
+      store.dispatch(`ba-banner-pull/save`, {
+        key,
+        data: pull.value
+      })
     }
   }
 </script>

@@ -1,16 +1,16 @@
-import ShirokoSwimsuitPortrait from '@/assets/students/shiroko-swimsuit-portrait.webp'
-import HimariPortrait from '@/assets/students/himari-portrait.webp'
+import ShirokoSwimsuitPortrait from '@/assets/students/shiroko-swimsuit-icon.webp'
+import HimariPortrait from '@/assets/students/himari-icon.webp'
 
 let students = [
   {
     name: `Shiroko`,
     alter: `Swimsuit`,
-    portrait: ShirokoSwimsuitPortrait
+    icon: ShirokoSwimsuitPortrait
   },
   {
     name: `Himari`,
     alter: ``,
-    portrait: HimariPortrait
+    icon: HimariPortrait
   }
 ]
 

@@ -7,7 +7,6 @@
         v-for="banner in banners" :key="banner.key"
         class="py-3 sm:py-4"
       >
-        <!-- {{ banner }} -->
         <ListItemBanner
           :item="banner"
         ></ListItemBanner>
@@ -17,11 +16,14 @@
 </template>
 
 <script setup>
+  import { ref, onMounted } from 'vue'
+  import { useStore } from 'vuex' 
   import dayjs from 'dayjs'
   import { getDayjsNoTime } from '@/utils'
   import dataBanners from '@/data/banners.js'
   import ListItemBanner from '@/components/list-item/Banner.vue'
   
+  const store = useStore()
   const today = getDayjsNoTime(dayjs().format(`YYYY-MM-DD`))
   const banners = dataBanners
   .map(banner => {
@@ -30,4 +32,14 @@
     return banner
   })
   .filter(banner => banner.diff > banner.duration*-1)
+
+  const setGetListener = () => {
+    store.dispatch(`ba-banner-pull/setGetRecordsListen`, (record) => {
+      console.log(record)
+    })
+  }
+
+  onMounted(() => {
+    setGetListener()
+  })
 </script>

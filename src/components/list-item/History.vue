@@ -42,7 +42,7 @@
 <script setup>
   import { ref } from 'vue'
   import dayjs from 'dayjs'
-  import { formatCurrency, getBlueArchiveTotalPull, getBlueArchiveSpark } from '@/utils'
+  import { getBlueArchiveTotalPull, getBlueArchiveSpark } from '@/utils'
   import ListItemHistorySub from '@/components/list-item/HistorySub.vue'
   import IconPyroxene from '@/assets/icons/pyroxene.webp'
   import IconRecruitmentTicket from '@/assets/icons/recruitment-ticket.webp'
@@ -61,15 +61,5 @@
       return [`text-primary`, `font-bold`]
     }
     return []
-  }
-
-  const getHistoryDiffClasses = (diff) => {
-    if (diff > 0) return `text-success`
-    if (diff < 0) return `text-danger`
-  }
-
-  const getHistoryDiffText = (diff) => {
-    const prefix = diff > 0 ? `+` : ``
-    return `(${prefix}${formatCurrency(diff)})`
   }
 </script>

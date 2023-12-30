@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full h-12 shadow md:px-4 sm:px-6 px-4 sticky top-0">
+  <div class="w-full h-12 bg-white shadow md:px-4 sm:px-6 px-4 sticky top-0">
     <div class="flex h-full items-center">
       <div class="flex-none w-14">
         <img :src="Logo">

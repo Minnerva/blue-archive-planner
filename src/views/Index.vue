@@ -52,7 +52,6 @@
           </div>
 
           <div class="col-span-full md:col-start-2 md:col-end-4 mt-4">
-            <!-- <button @click="onSave">Save</button> -->
             <ButtonBase 
               :on-click="onSave"
               primary
@@ -74,6 +73,13 @@
         ></ListHistory>
       </template>
     </Card>
+
+    <Card class="max-h-72 col-span-full overflow-auto md:col-span-3 xl:col-span-2">
+      <template v-slot:body>
+        <div class="text-md0 md:text-xl font-bold">Upcoming Banners</div>
+        <ListBanner></ListBanner>
+      </template>
+    </Card>
   </div>
 </template>
 
@@ -87,6 +93,7 @@
   import InputBase from '@/components/input/Base.vue'
   import ButtonBase from '@/components/button/Base.vue'
   import ListHistory from '@/components/list/History.vue'
+  import ListBanner from '@/components/list/Banner.vue'
   import IconLeft from '@/assets/icons/fa-chevron-left.svg'
   import IconRight from '@/assets/icons/fa-chevron-right.svg'
   import IconCalendar from '@/assets/icons/fa-calendar.svg'
@@ -98,7 +105,7 @@
   // TODO: Banner List
   // TODO: Able to select Banner to pull
   // TODO: Able to add pyrox use at specific date 
-  // TODO: Able to delete add pyrox use
+  // TODO: (?) Able to delete add pyrox use
 
   const store = useStore()
   const date = ref(dayjs())

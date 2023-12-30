@@ -14,6 +14,7 @@
       :type="type"
       :value="modelValue"
       @input="$emit(`update:modelValue`, $event.target.value)"
+      @change="onChange"
     >
   </div>
 </template>
@@ -28,8 +29,15 @@
     },
     placeholder: {
       default: ``
+    },
+    onChange: {
+      type: Function,
+      default () {
+        return () => {}
+      }
     }
   })
+
   defineEmits([`update:modelValue`])
 </script>
 

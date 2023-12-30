@@ -8,11 +8,19 @@ export const getUrl = (path) => {
   return `${process.env.BASE}${path || ``}`
 }
 
-export const findIndex = (array, key, value) => {
+export const findIndex = (array, obj) => {
   let index = -1
-  
+  const keys = Object.keys(obj)
+
   array.forEach((item, i) => {
-    if (item[key] === value) {
+    const true_flags = []
+    keys.forEach(key => {
+      if (item[key] === obj[key]) {
+        true_flags.push(true)
+      }
+    })
+
+    if (true_flags.length === keys.length) {
       index = i
       return i
     }
@@ -21,8 +29,8 @@ export const findIndex = (array, key, value) => {
   return index
 }
 
-export const find = (array, key, value) => {
-  const index = findIndex(array, key, value)
+export const find = (array, obj) => {
+  const index = findIndex(array, obj)
   return index > -1 ? array[index] : false
 }
 

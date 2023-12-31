@@ -34,20 +34,11 @@
   // don't need to make multiple chart yet
   const chart_id = `chart`
   let $chart = null
+  const images = {} 
 
   watch(props, () => {
     updateChart()
   })
-
-  const img1 = new Image()
-  img1.src = Img1
-  img1.width = 15
-  img1.height = 15
-
-  const img2 = new Image()
-  img2.src = Img2
-  img2.width = 15
-  img2.height = 15
 
   Chart.register({
     id: `default`,
@@ -72,19 +63,18 @@
             banners.forEach((banner, banner_index) => {
               const student = find(dataStudents, { key: banner.student_key })
               if (student) {
-                const image = new Image()
-                image.src = student.icon
-                image.width = width
-                image.height = height
-                image.onload = () => {
-                  ctx.drawImage(image, x - (width/2), y - (-10+(banner_index*-1)*height), width, height)
+                if (!images[student.key]) {
+                  const image = new Image(width, height)
+                  image.src = student.icon
+
+                  images[student.key] = image
                 }
+
+                ctx.drawImage(images[student.key], x - (width/2), y - (-10+(banner_index*-1)*height), width, height)
               }
             })
           }
         })
-        // const { x, y } = chart.getDatasetMeta(0).data[26]
-        // ctx.drawImage(img1, x - 15/2, y - 20, 15, 15)
       }
     }
   })

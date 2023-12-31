@@ -29,6 +29,26 @@ export const findIndex = (array, obj) => {
   return index
 }
 
+export const filter = (array, obj) => {
+  return array.filter(item => {
+    let flags = []
+    for (let key in obj) {
+      flags.push(obj[key] === item[key])
+    }
+
+    return flags.every((flag) => flag)
+  })
+}
+
+export const filterObject = (obj, filterObj) => {
+  const array = []
+  for (let key in obj) {
+    array.push(obj[key])
+  }
+
+  return filter(array, filterObj)
+}
+
 export const find = (array, obj) => {
   const index = findIndex(array, obj)
   return index > -1 ? array[index] : false

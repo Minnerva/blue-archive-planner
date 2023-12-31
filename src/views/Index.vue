@@ -10,8 +10,10 @@
       <div class="flex justify-center">
         <div class="w-full h-72">
           <LineChart
+            v-if="chartProps.labels"
             :labels="chartProps.labels"
             :data="chartProps.data"
+            :pull-banners="chartProps.pull_banners"
           ></LineChart>
         </div>
       </div>
@@ -93,7 +95,7 @@
   import { ref, reactive, onMounted } from 'vue'
   import { useStore } from 'vuex'
   import dayjs from 'dayjs'
-  import { getDayjsNoTime, getBlueArchiveCurrencyToPull, getBlueArchiveTotalPull } from '@/utils'
+  import { filterObject, getDayjsNoTime, getBlueArchiveCurrencyToPull, getBlueArchiveTotalPull } from '@/utils'
   import LineChart from '@/components/LineChart.vue'
   import Card from '@/components/Card.vue'
   import InputBase from '@/components/input/Base.vue'
@@ -134,7 +136,8 @@
   
   const chartProps = ref({
     labels: [],
-    data: []
+    data: [],
+    pull_banners: []
   })
 
   const setLatestRecord = () => {
@@ -259,11 +262,11 @@
     const own_data = []
     const predict_data = []
     const latest_date = latest_data.value ? getDayjsNoTime(latest_data.value.date) : false
-    const being_month_latest_date = latest_date ? latest_date.startOf('month') : false
     const banner_pull = store.state[`ba-banner-pull`].banner_pull
     const banner_keys = Object.keys(banner_pull)
     let estimate_pyroxene = false
     let estimate_banner_old_flag = false
+    const pull_banners = []
 
     const start_date = date.value.startOf(`month`)
     const end_date = date.value.endOf(`month`)
@@ -286,8 +289,8 @@
       if (latest_date) {
         // banner_pull
         const predict_date_diff = latest_date.diff(plot_date, `day`)
+
         if (predict_date_diff <= 0) {
-          
           if (estimate_pyroxene === false) {
             estimate_pyroxene = (predict_date_diff * -1 * average_gain_per_day) + latest_data.value.pyroxene
           } else {
@@ -332,6 +335,19 @@
             free_pull: latest_data.value.free_pull
           })
         }
+
+        // get pull of this month
+        const banners = filterObject(banner_pull, { date: plot_date_string })
+        if (banners.length <= 0) {
+          pull_banners.push(null)
+        } else {
+          pull_banners.push(banners)
+        }
+        // if (!banner_plot) {
+        //   pull_banners.push(null)
+        // } else {
+
+        // }
       }
 
       labels.push(plot_date_string)
@@ -341,6 +357,7 @@
 
     chartProps.value.labels = labels
     chartProps.value.data = [own_data, predict_data]
+    chartProps.value.pull_banners = pull_banners
   }
 
   onMounted(() => {

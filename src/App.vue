@@ -9,12 +9,11 @@
   import dayjs from 'dayjs'
   import utc from 'dayjs/plugin/utc'
   import { initializeApp } from 'firebase/app'
-  // import { getAnalytics } from 'firebase/analytics'
+  import { getAnalytics } from 'firebase/analytics'
   import { getAuth } from 'firebase/auth'
   import { getDatabase } from 'firebase/database'
 
   import Nav from '@/components/Nav.vue'
-  import Footer from '@/components/Footer.vue'
 
   dayjs.extend(utc)
   const store = useStore()
@@ -32,8 +31,8 @@
 
   const app = initializeApp(firebaseConfig)
   const auth = getAuth(app)
-  const database = getDatabase(app)
-  // getAnalytics(app)
+  getDatabase(app)
+  getAnalytics(app)
 
   auth.onAuthStateChanged(async (currentUser) => {
     if (!currentUser && store.state.user) {
@@ -50,8 +49,7 @@
           if (!user) {
             updateUserData = {
               ign: ``,
-              active: true,
-              // email: auth.currentUser.email,
+              active: false,
               created_at: currentTime,
               last_signed_in_at: currentTime
             }

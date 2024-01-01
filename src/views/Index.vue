@@ -99,6 +99,7 @@
         <ListHistory
           class="max-h-56 overflow-auto pr-2"
           :items="histories"
+          :currency-use="currency_use"
         ></ListHistory>
       </template>
     </Card>
@@ -154,6 +155,7 @@
   const form_tab_active = ref(`record`)
   const date = ref(dayjs())
   const currency_own = ref([])
+  const currency_use = ref({})
   const histories = ref([])
   const average_gain_per_day = 12000/30 // per month will bug with February
   const latest_data = ref({
@@ -253,7 +255,7 @@
     })
   }
 
-  const setCurrenyDataFromYearMonth = (year, month) => {
+  const setCurrencyDataFromYearMonth = (year, month) => {
     store.dispatch(`ba-currency-own/setGetRecordsListen`, {
       year,
       month,
@@ -261,6 +263,17 @@
         currency_own.value = record
         updateChartData()
         setLatestRecordBeforeMonth(year, month)
+      }
+    })
+  }
+
+  const setCurrencyUseFromYearMonth = (year, month) => {
+    store.dispatch(`ba-currency-use/setGetRecordsListen`, {
+      year,
+      month,
+      callback: (record) => {
+        currency_use.value = record
+        updateChartData()
       }
     })
   }
@@ -273,7 +286,8 @@
 
   const changeYearMonth = (new_date) => {
     date.value = new_date
-    setCurrenyDataFromYearMonth(new_date.format(`YYYY`), new_date.format(`MM`))
+    setCurrencyDataFromYearMonth(new_date.format(`YYYY`), new_date.format(`MM`))
+    setCurrencyUseFromYearMonth(new_date.format(`YYYY`), new_date.format(`MM`))
   }
   
   const onPrev = () => {
@@ -288,7 +302,7 @@
 
   const onSave = async () => {
     const form_day = getDayjsNoTime(form.day)
-    const data = {
+    let data = {
       pyroxene: form.pyroxene,
       free_pull: form.free_pull
     }
@@ -306,11 +320,18 @@
         data
       })
     } else if (form_tab_active.value === `use`) {
-      if (isNaN(data.pyroxene)) {
-        data.pyroxene = 0
-      }
-      if (isNaN(data.free_pull)) {
-        data.free_pull = 0
+      if (
+        (isNaN(data.pyroxene) && isNaN(data.free_pull)) ||
+        (data.pyroxene <= 0 && data.free_pull <= 0)
+      ) {
+        data = null
+      } else {
+        if (isNaN(data.pyroxene)) {
+          data.pyroxene = 0
+        }
+        if (isNaN(data.free_pull)) {
+          data.free_pull = 0
+        }
       }
 
       store.dispatch(`ba-currency-use/save`, {
@@ -429,6 +450,7 @@
   onMounted(() => {
     setLatestRecord()
     setGetUpcomingBannerPullListener()
-    setCurrenyDataFromYearMonth(date.value.format(`YYYY`), date.value.format(`MM`))
+    setCurrencyDataFromYearMonth(date.value.format(`YYYY`), date.value.format(`MM`))
+    setCurrencyUseFromYearMonth(date.value.format(`YYYY`), date.value.format(`MM`))
   })
 </script>

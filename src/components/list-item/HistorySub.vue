@@ -5,7 +5,7 @@
       :src="icon"
       :title="iconTitle"
     >
-    <span>{{ formatCurrency(own) }}</span>
+    <span :class="{'text-danger': danger}">{{ formatCurrency(own) }}</span>
     <span
       v-if="diff && diff !== 0"
       class="ml-1 text-xs"
@@ -27,7 +27,11 @@
     own: {
       required: true
     },
-    diff: {}
+    diff: {},
+    danger: {
+      type: Boolean,
+      default: false
+    }
   })
 
   const getHistoryDiffClasses = (diff) => {

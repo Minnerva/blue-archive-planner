@@ -8,6 +8,8 @@
     </div>
 
     <div class="col-span-1 border-r">
+      <div class="text-center text-xs pb-2">Record</div>
+
       <ListItemHistorySub
         :icon="IconPyroxene"
         icon-title="Pyroxene"
@@ -22,18 +24,40 @@
         :diff="item.diff_free_pull"
       ></ListItemHistorySub>
     </div>
+    
+    <div
+      class="col-span-1"
+      v-if="use"
+    >
+      <div class="text-center text-xs pb-2">Use</div>
 
-    <div class="col-span-1">
+      <ListItemHistorySub
+        :icon="IconPyroxene"
+        icon-title="Pyroxene"
+        :own="use.pyroxene"
+        danger
+      ></ListItemHistorySub>
+
+      <ListItemHistorySub
+        :icon="IconRecruitmentTicket"
+        icon-title="Pull Ticket"
+        :own="use.free_pull"
+        danger
+      ></ListItemHistorySub>
+
+      <!-- <ListItemHistorySub
+        :icon="Icon3StarsUnit"
+        icon-title="Spark"
+        :own="getBlueArchiveSpark(getBlueArchiveTotalPull(item))"
+      ></ListItemHistorySub> -->
+    </div>
+
+    <div class="col-span-full flex justify-center">
       <ListItemHistorySub
         :icon="IconPulls"
         icon-title="Total Pull"
         :own="getBlueArchiveTotalPull(item)"
-      ></ListItemHistorySub>
-
-      <ListItemHistorySub
-        :icon="Icon3StarsUnit"
-        icon-title="Spark"
-        :own="getBlueArchiveSpark(getBlueArchiveTotalPull(item))"
+        :diff="getBlueArchiveTotalPull({ pyroxene: item.diff_pyroxene, free_pull: item.diff_free_pull })"
       ></ListItemHistorySub>
     </div>
   </div>
@@ -52,6 +76,9 @@
   const props = defineProps({
     item: {
       required: true
+    },
+    use: {
+      default: false
     }
   })
   const current_date = ref(dayjs())

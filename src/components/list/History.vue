@@ -9,6 +9,7 @@
       >
         <ListItemHistory
           :item="item"
+          :use="currencyUse[item.date]"
         ></ListItemHistory>
       </li>
     </ul>
@@ -21,6 +22,11 @@
   const props = defineProps({
     items: {
       required: true
+    },
+    currencyUse: {
+      default () {
+        return {}
+      }
     }
   })
 </script>

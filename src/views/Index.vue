@@ -73,7 +73,7 @@
             <div :class="{'text-success': summary.monthly.total_earn > 0, 'text-danger': summary.monthly.total_earn < 0}">
               <span v-if="summary.monthly.total_earn < 0">-</span>
               <span v-if="summary.monthly.total_earn > 0">+</span>
-              {{ formatCurrency(summary.monthly.total_earn) }}
+              <span>{{ formatCurrency(summary.monthly.total_earn) }}</span>
             </div>
           </div>
 
@@ -367,6 +367,13 @@
       summary.monthly.use_pyroxene = 0
       summary.monthly.use_free_pull = 0
 
+      // Get total use
+      for (let key in currency_use.value) {
+        const obj_use = currency_use.value[key]
+        summary.monthly.use_pyroxene += obj_use.pyroxene
+        summary.monthly.use_free_pull += obj_use.free_pull
+      }
+
       // Get total earn
       let total_diff_pyrox = 0
       let total_diff_free_pull = 0
@@ -376,13 +383,7 @@
         total_diff_free_pull += history_item.diff_free_pull
       })
       total_diff_in_pyrox = total_diff_pyrox + (total_diff_free_pull*120)
-
-      // Get total use
-      for (let key in currency_use.value) {
-        const obj_use = currency_use.value[key]
-        summary.monthly.use_pyroxene += obj_use.pyroxene
-        summary.monthly.use_free_pull += obj_use.free_pull
-      }
+      total_diff_in_pyrox += summary.monthly.use_pyroxene + (summary.monthly.use_free_pull*120)
     }
     
     summary.monthly.total_earn = total_diff_in_pyrox

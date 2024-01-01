@@ -117,19 +117,15 @@
   const date = ref(dayjs())
   const currency_own = ref([])
   const histories = ref([])
-  
-  const current_year = dayjs().year()
-  const current_month = dayjs().month() + 1 // due to month start at 0 to 11
-  const current_day = dayjs().date()
   const average_gain_per_day = 12000/30 // per month will bug with February
   const latest_data = ref({
     date: ``,
     pyroxene: 0,
     free_pull: 0
   })
-
+  
   const form = reactive({
-    day: `${current_year}-${current_month}-${current_day}`,
+    day: date.value.format(`YYYY-MM-DD`),
     pyroxene: undefined,
     free_pull: undefined
   })
@@ -343,11 +339,6 @@
         } else {
           pull_banners.push(banners)
         }
-        // if (!banner_plot) {
-        //   pull_banners.push(null)
-        // } else {
-
-        // }
       }
 
       labels.push(plot_date_string)
@@ -363,6 +354,6 @@
   onMounted(() => {
     setLatestRecord()
     setGetUpcomingBannerPullListener()
-    setCurrenyDataFromYearMonth(current_year, current_month)
+    setCurrenyDataFromYearMonth(date.value.format(`YYYY`), date.value.format(`MM`))
   })
 </script>

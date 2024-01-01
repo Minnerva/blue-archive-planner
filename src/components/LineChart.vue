@@ -8,8 +8,6 @@
   // import { Chart, LineController, LineElement, PointElement, CategoryScale, LinearScale, Tooltip } from 'chart.js'
   import dataStudents from '@/data/students.js'
   import { find } from '@/utils'
-  import Img1 from '@/assets/icons/pyroxene.webp'
-  import Img2 from '@/assets/icons/recruitment-ticket.webp'
 
   // For tree shaking, might not need as only 100kb diff
   // Chart.register(
@@ -31,6 +29,7 @@
       }
     }
   })
+
   // don't need to make multiple chart yet
   const chart_id = `chart`
   let $chart = null
@@ -94,11 +93,13 @@
         labels: [],
         datasets: [
           {
+            label: `Record`,
             data: [],
             borderColor: `#00D8FB`,
             backgroundColor: `#FFFFFF`
           },
           {
+            label: `Estimate`,
             data: [],
             borderColor: `#FFE9F2`,
             backgroundColor: `#FFFFFF`
@@ -109,9 +110,9 @@
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: {
-            display: false
-          }
+          // legend: {
+          //   display: false
+          // }
         },
         animation: {
           // duration: 0
@@ -120,11 +121,22 @@
           x: {
             ticks: {
               autoSkip: true,
-              maxTicksLimit: 10
+              maxTicksLimit: 6
             }
           },
           y: {
-            beginAtZero: true
+            beginAtZero: true,
+            ticks: {
+              stepSize: 100,
+              color: (context) => {
+                return context.tick.value < 0 ? 'red' : ``
+              }
+            },
+            grid: {
+              color: (context) => {
+                return context.tick.value <= 0 ? 'red' : ``
+              }
+            }
           }
         }
       }

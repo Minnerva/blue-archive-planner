@@ -1,6 +1,6 @@
 <template>
   <div class="grid grid-cols-10 gap-4">
-    <div class="col-span-full md:col-span-8">
+    <div class="col-span-full md:col-span-7 xl:col-span-8">
       <div class="flex justify-center text-center">
         <img :src="IconLeft" class="cursor-pointer select-none" @click="onPrev">
         <span class="mx-4 text-xl md:text-3xl font-bold">{{ date.format(`YYYY-MM`) }}</span>
@@ -19,9 +19,86 @@
       </div>
     </div>
 
-    <Card class="max-h-72 col-span-full md:col-span-2">
+    <Card class="col-span-full md:col-span-3 xl:col-span-2">
       <template v-slot:body>
-        TBD
+        <div class="h-10 text-md0 md:text-xl font-bold border-b">Summary</div>
+
+        <div class="grid grid-cols-2 gap-3 mt-3">
+          <div class="col-span-1 flex items-center">
+            <img 
+              class="w-8 mr-2"
+              :src="IconPyroxene"
+              title="Pyroxene"
+            >
+            <div>{{ summary.current.pyroxene }}</div>
+          </div>
+          
+          <div class="col-span-1 flex items-center">
+            <img 
+              class="w-8 mr-2"
+              :src="IconRecruitmentTicket"
+              title="Pull Ticket"
+            >
+            <div>{{ summary.current.free_pull }}</div>
+          </div>
+          
+          <div class="col-span-1 flex items-center">
+            <img 
+              class="w-8 mr-2"
+              :src="IconPulls"
+              title="Total Pull"
+            >
+            <div>{{ summary.current.total_pull }}</div>
+          </div>
+          
+          <div class="col-span-1 flex items-center">
+            <img 
+              class="w-8 mr-2"
+              :src="Icon3StarsUnit"
+              title="Spark"
+            >
+            <div>{{ summary.current.spark }}</div>
+          </div>
+
+          <div class="col-span-full">
+            <div class="h-10 flex items-center text-sm font-bold border-y">This Month - Total Earned In Pyroxene</div>
+          </div>
+
+          <div class="col-span-1 flex items-center">
+            <img 
+              class="w-8 mr-2"
+              :src="IconPyroxene"
+              title="Pyroxene"
+            >
+            <div :class="{'text-success': summary.monthly.total_earn > 0, 'text-danger': summary.monthly.total_earn < 0}">
+              <span v-if="summary.monthly.total_earn < 0">-</span>
+              <span v-if="summary.monthly.total_earn > 0">+</span>
+              {{ formatCurrency(summary.monthly.total_earn) }}
+            </div>
+          </div>
+
+          <div class="col-span-full">
+            <div class="h-10 flex items-center text-sm font-bold border-y">This Month - Total Used</div>
+          </div>
+
+          <div class="col-span-1 flex items-center">
+            <img 
+              class="w-8 mr-2"
+              :src="IconPyroxene"
+              title="Pyroxene"
+            >
+            <div :class="{'text-danger': summary.monthly.use_pyroxene < 0 }">{{ summary.monthly.use_pyroxene }}</div>
+          </div>
+          
+          <div class="col-span-1 flex items-center">
+            <img 
+              class="w-8 mr-2"
+              :src="IconRecruitmentTicket"
+              title="Pull Ticket"
+            >
+            <div :class="{'text-danger': summary.monthly.use_free_pull < 0 }">{{ summary.monthly.use_free_pull }}</div>
+          </div>
+        </div>
       </template>
     </Card>
     
@@ -125,7 +202,7 @@
   import { ref, reactive, onMounted } from 'vue'
   import { useStore } from 'vuex'
   import dayjs from 'dayjs'
-  import { filterObject, getDayjsNoTime, getBlueArchiveCurrencyToPull, getBlueArchiveTotalPull } from '@/utils'
+  import { filterObject, getDayjsNoTime, getBlueArchiveTotalPull, formatCurrency, getBlueArchiveSpark } from '@/utils'
   import LineChart from '@/components/LineChart.vue'
   import Card from '@/components/Card.vue'
   import InputBase from '@/components/input/Base.vue'
@@ -137,6 +214,8 @@
   import IconCalendar from '@/assets/icons/fa-calendar.svg'
   import IconPyroxene from '@/assets/icons/pyroxene.webp'
   import IconRecruitmentTicket from '@/assets/icons/recruitment-ticket.webp'
+  import IconPulls from '@/assets/icons/icon-pulls.png'
+  import Icon3StarsUnit from '@/assets/icons/icon-3-stars-unit.png'
   import MikaPortrait from '@/assets/students/mika-portrait.webp'
 
   // TODO: Switch between pyroxene view and pull view
@@ -162,6 +241,19 @@
     date: ``,
     pyroxene: 0,
     free_pull: 0
+  })
+  const summary = reactive({
+    current: {
+      pyroxene: 0,
+      free_pull: 0,
+      total_pull: 0,
+      spark: 0
+    },
+    monthly: {
+      total_earn: 0,
+      use_pyroxene: 0,
+      use_free_pull: 0
+    }
   })
   
   const form = reactive({
@@ -202,10 +294,19 @@
       if (record) {
         const keys = Object.keys(record)
         if (keys.length > 0) {
+          const latest_date = keys[0]
+          const latest_record = record[latest_date]
           latest_data.value = {
-            date: keys[0],
-            ...record[keys[0]]
+            date: latest_date,
+            ...latest_record
           }
+
+          summary.current = {
+            pyroxene: formatCurrency(latest_record.pyroxene),
+            free_pull: formatCurrency(latest_record.free_pull)
+          }
+          summary.current.total_pull = formatCurrency(getBlueArchiveTotalPull(latest_record))
+          summary.current.spark = formatCurrency(getBlueArchiveSpark(getBlueArchiveTotalPull(latest_record)))
         }
       }
     })
@@ -243,16 +344,50 @@
           }
 
           if (diff_data) {
-            history.diff_pyroxene = own_data.pyroxene - diff_data.pyroxene
-            history.diff_free_pull = own_data.free_pull - diff_data.free_pull
+            const diff_pyroxene = own_data.pyroxene - diff_data.pyroxene
+            const diff_free_pull = own_data.free_pull - diff_data.free_pull
+            history.diff_pyroxene = diff_pyroxene
+            history.diff_free_pull = diff_free_pull
           }
           
           history_data.push(history)
         }
         
         histories.value = history_data
+        updateSummaryMonthly()
       }
     })
+  }
+
+  const updateSummaryMonthly = () => {
+    let total_diff_in_pyrox = 0
+
+    if (histories.value.length > 0 && currency_use.value) {
+      summary.monthly.total_earn = 0
+      summary.monthly.use_pyroxene = 0
+      summary.monthly.use_free_pull = 0
+
+      // Get total earn
+      let total_diff_pyrox = 0
+      let total_diff_free_pull = 0
+      
+      histories.value.forEach(history_item => {
+        total_diff_pyrox += history_item.diff_pyroxene
+        total_diff_free_pull += history_item.diff_free_pull
+      })
+      total_diff_in_pyrox = total_diff_pyrox + (total_diff_free_pull*120)
+
+      // Get total use
+      for (let key in currency_use.value) {
+        const obj_use = currency_use.value[key]
+        summary.monthly.use_pyroxene += obj_use.pyroxene
+        summary.monthly.use_free_pull += obj_use.free_pull
+      }
+    }
+    
+    summary.monthly.total_earn = total_diff_in_pyrox
+    summary.monthly.use_pyroxene = summary.monthly.use_pyroxene && !isNaN(summary.monthly.use_pyroxene) ? `-${formatCurrency(summary.monthly.use_pyroxene)}`: `-`
+    summary.monthly.use_free_pull = summary.monthly.use_free_pull && !isNaN(summary.monthly.use_free_pull) ? `-${formatCurrency(summary.monthly.use_free_pull)}`: `-`
   }
 
   const setCurrencyDataFromYearMonth = (year, month) => {
@@ -263,6 +398,7 @@
         currency_own.value = record
         updateChartData()
         setLatestRecordBeforeMonth(year, month)
+        updateSummaryMonthly()
       }
     })
   }
@@ -274,6 +410,7 @@
       callback: (record) => {
         currency_use.value = record
         updateChartData()
+        updateSummaryMonthly()
       }
     })
   }
@@ -281,6 +418,7 @@
   const setGetUpcomingBannerPullListener = () => {
     store.dispatch(`ba-banner-pull/setGetUpcomingRecordsListen`, (record) => {
       store.commit(`ba-banner-pull/setBannerPull`, record)
+      updateChartData()
     })
   }
 

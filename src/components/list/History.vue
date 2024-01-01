@@ -9,7 +9,7 @@
       >
         <ListItemHistory
           :item="item"
-          :use="currencyUse[item.date]"
+          :use="currencyUse ? currencyUse[item.date] : null"
         ></ListItemHistory>
       </li>
     </ul>

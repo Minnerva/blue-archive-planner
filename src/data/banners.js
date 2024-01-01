@@ -127,12 +127,12 @@ let banners = [
   {
     date: `2024-06-20`,
     duration: 14,
-    student_key: `hare-camp`
+    student_key: `hare-camping`
   },
   {
     date: `2024-06-20`,
     duration: 14,
-    student_key: `kotama-camp`
+    student_key: `kotama-camping`
   }
 ]
 

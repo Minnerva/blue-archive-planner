@@ -13,7 +13,7 @@ let students = [
   },
   {
     name: `Hare`,
-    alter: `Camp`
+    alter: `Camping`
   },
   {
     name: `Haruna`,
@@ -49,7 +49,7 @@ let students = [
   },
   {
     name: `Kotama`,
-    alter: `Camp`
+    alter: `Camping`
   },
   {
     name: `Mari`,

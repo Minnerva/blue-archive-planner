@@ -1,6 +1,6 @@
 <template>
-  <div class="grid grid-cols-7 gap-4">
-    <div class="col-span-full md:col-span-5">
+  <div class="grid grid-cols-10 gap-4">
+    <div class="col-span-full md:col-span-8">
       <div class="flex justify-center text-center">
         <img :src="IconLeft" class="cursor-pointer select-none" @click="onPrev">
         <span class="mx-4 text-xl md:text-3xl font-bold">{{ date.format(`YYYY-MM`) }}</span>
@@ -18,9 +18,15 @@
         </div>
       </div>
     </div>
+
+    <Card class="max-h-72 col-span-full md:col-span-2">
+      <template v-slot:body>
+        TBD
+      </template>
+    </Card>
     
     <Card
-      class="col-span-full md:col-span-2"
+      class="max-h-72 col-span-full md:col-span-2"
       no-padding
     >
       <template v-slot:body>
@@ -84,27 +90,29 @@
             </ButtonBase>
           </div>
         </div>
-          <!-- <img :src="AronaHead" class="h-32 mt-4 md:mt-0 md:absolute bottom-0 inset-x-0 m-auto"> -->
       </template>
     </Card>
 
-    <Card class="h-72 col-span-full overflow-auto md:col-span-3">
+    <Card class="col-span-full md:col-span-4 xl:col-span-3">
       <template v-slot:body>
-        <div class="text-md0 md:text-xl font-bold">History</div>
+        <div class="h-10 text-md0 md:text-xl font-bold border-b">History</div>
         <ListHistory
+          class="max-h-56 overflow-auto pr-2"
           :items="histories"
         ></ListHistory>
       </template>
     </Card>
 
-    <Card class="max-h-72 col-span-full overflow-auto md:col-span-3 xl:col-span-2">
+    <Card class="col-span-full overflow-auto md:col-span-4 xl:col-span-3">
       <template v-slot:body>
-        <div class="text-md0 md:text-xl font-bold">Upcoming Banners</div>
-        <ListBanner></ListBanner>
+        <div class="h-10 text-md0 md:text-xl font-bold border-b">Upcoming Banners</div>
+        <ListBanner
+          class="max-h-56 overflow-auto pr-2"
+        ></ListBanner>
       </template>
     </Card>
 
-    <div class="col-span-full md:col-span-1 xl:col-span-2 grid items-center content-end">
+    <div class="col-span-full md:col-span-full xl:col-span-2 grid items-center content-end">
       <div class="text-center">
         <img class="inline-block max-w-36" :src="MikaPortrait" title="My Wife!!!">
       </div>
@@ -171,9 +179,9 @@
       return [`hover:text-gray-600`, `hover:border-gray-300`, `dark:hover:text-gray-300`]
     } else {
       if (tab.key === `record`) {
-        return [`border-primary`, `text-primary`]
+        return [`font-bold`, `border-primary`, `text-primary`]
       } else if (tab.key === `use`) {
-        return [`border-danger`, `text-danger`]
+        return [`font-bold`, `border-danger`, `text-danger`]
       }
     }
   }

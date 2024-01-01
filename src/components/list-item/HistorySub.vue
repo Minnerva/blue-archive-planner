@@ -36,7 +36,7 @@
   }
 
   const getHistoryDiffText = (diff) => {
-    const prefix = diff > 0 ? `+` : ``
+    const prefix = diff >= 0 ? `+` : ``
     return `(${prefix}${formatCurrency(diff)})`
   }
 </script>

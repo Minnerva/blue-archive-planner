@@ -19,51 +19,72 @@
       </div>
     </div>
     
-    <Card class="col-span-full md:col-span-2">
+    <Card
+      class="col-span-full md:col-span-2"
+      no-padding
+    >
       <template v-slot:body>
-        <div class="mb-3 text-md md:text-xl font-bold">Add</div>
+        <div class="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
+          <ul class="grid grid-cols-2 gap-0">
+            <li
+              v-for="tab in form_tabs" :key="tab.key"
+              class="col-span-auto"
+            >
+            <div
+              class="p-3 border-b-2 border-transparent rounded-t-lg cursor-pointer"
+              :class="getTabClasses(tab)"
+              @click="onTabChange(tab.key)"
+            >
+                {{ tab.label }}
+              </div>
+            </li>
+          </ul>
+        </div>
 
-        <div class="grid grid-cols-4 gap-4">
+        <div class="grid grid-cols-4 gap-4 p-3">
           <div class="col-span-full">
             <InputBase
               v-model="form.day"
               :icon="IconCalendar"
               icon-title="Date"
               type="date"
+              :danger="form_tab_active === `use`"
             ></InputBase>
           </div>
 
-          <div class="col-span-2">
+          <div class="col-span-full">
             <InputBase
               v-model.number="form.pyroxene"
-              :placeholder="latest_data.pyroxene"
+              :placeholder="form_tab_active === `record` ? latest_data.pyroxene : `0`"
               :icon="IconPyroxene"
               icon-title="Pyroxene"
               type="number"
+              :danger="form_tab_active === `use`"
             ></InputBase>
           </div>
 
-          <div class="col-span-2">
+          <div class="col-span-full">
             <InputBase
               v-model.number="form.free_pull"
-              :placeholder="latest_data.free_pull"
+              :placeholder="form_tab_active === `record` ? latest_data.free_pull : `0`"
               :icon="IconRecruitmentTicket"
               icon-title="Free Pull"
               type="number"
+              :danger="form_tab_active === `use`"
             ></InputBase>
           </div>
 
           <div class="col-span-full md:col-start-2 md:col-end-4 mt-4">
-            <ButtonBase 
+            <ButtonBase
               :on-click="onSave"
-              primary
+              :primary="form_tab_active === `record`"
+              :danger="form_tab_active === `use`"
             >
               Save
             </ButtonBase>
           </div>
         </div>
-
-        <img :src="AronaHead" class="h-32 mt-4 md:mt-0 md:absolute bottom-0 inset-x-0 m-auto">
+          <!-- <img :src="AronaHead" class="h-32 mt-4 md:mt-0 md:absolute bottom-0 inset-x-0 m-auto"> -->
       </template>
     </Card>
 
@@ -107,13 +128,22 @@
   import IconCalendar from '@/assets/icons/fa-calendar.svg'
   import IconPyroxene from '@/assets/icons/pyroxene.webp'
   import IconRecruitmentTicket from '@/assets/icons/recruitment-ticket.webp'
-  import AronaHead from '@/assets/arona-head.png'
   import MikaPortrait from '@/assets/students/mika-portrait.webp'
 
   // TODO: Switch between pyroxene view and pull view
-  // TODO: Able to add pyrox use at specific date
 
   const store = useStore()
+  const form_tabs = ref([
+    {
+      key: `record`,
+      label: `Record`
+    },
+    {
+      key: `use`,
+      label: `Use`
+    }
+  ])
+  const form_tab_active = ref(`record`)
   const date = ref(dayjs())
   const currency_own = ref([])
   const histories = ref([])
@@ -135,6 +165,27 @@
     data: [],
     pull_banners: []
   })
+
+  const getTabClasses = (tab) => {
+    if (tab.key !== form_tab_active.value) {
+      return [`hover:text-gray-600`, `hover:border-gray-300`, `dark:hover:text-gray-300`]
+    } else {
+      if (tab.key === `record`) {
+        return [`border-primary`, `text-primary`]
+      } else if (tab.key === `use`) {
+        return [`border-danger`, `text-danger`]
+      }
+    }
+  }
+
+  const onTabChange = (tab_key) => {
+    if (form_tab_active.value !== tab_key) {
+      form.day = dayjs().format(`YYYY-MM-DD`)
+      form.pyroxene = undefined
+      form.free_pull = undefined
+      form_tab_active.value = tab_key
+    }
+  }
 
   const setLatestRecord = () => {
     store.dispatch(`ba-currency-own/setGetLatestRecordListen`, (record) => {
@@ -233,18 +284,34 @@
       pyroxene: form.pyroxene,
       free_pull: form.free_pull
     }
+    
+    if (form_tab_active.value === `record`) {
+      if (isNaN(data.pyroxene)) {
+        data.pyroxene = latest_data.value ? latest_data.value.pyroxene : 0
+      }
+      if (isNaN(data.free_pull)) {
+        data.free_pull = latest_data.value ? latest_data.value.free_pull : 0
+      }
 
-    if (isNaN(data.pyroxene)) {
-      data.pyroxene = latest_data.value ? latest_data.value.pyroxene : 0
-    }
-    if (isNaN(data.free_pull)) {
-      data.free_pull = latest_data.value ? latest_data.value.free_pull : 0
-    }
+      store.dispatch(`ba-currency-own/save`, {
+        key: form_day.format(`YYYY-MM-DD`),
+        data
+      })
+    } else if (form_tab_active.value === `use`) {
+      if (isNaN(data.pyroxene)) {
+        data.pyroxene = 0
+      }
+      if (isNaN(data.free_pull)) {
+        data.free_pull = 0
+      }
 
-    store.dispatch(`ba-currency-own/save`, {
-      key: form_day.format(`YYYY-MM-DD`),
-      data
-    })
+      store.dispatch(`ba-currency-use/save`, {
+        key: form_day.format(`YYYY-MM-DD`),
+        data
+      })
+    } else {
+      console.error(`Form Active Key is invalid.`)
+    }
 
     // reset form
     form.pyroxene = undefined

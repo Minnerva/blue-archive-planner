@@ -8,8 +8,8 @@
     >
     
     <input 
-      class="w-full h-7 border-primary border-2 drop-shadow-sm focus:outline-0"
-      :class="{ 'pl-4': !icon, 'pl-9': icon }"
+      class="w-full h-7 border-2 drop-shadow-sm focus:outline-0"
+      :class="[{'pl-4': !icon, 'pl-9': icon }, getClasses()]"
       :placeholder="placeholder"
       :type="type"
       :value="modelValue"
@@ -21,6 +21,10 @@
 
 <script setup>
   const props = defineProps({
+    danger: {
+      type: Boolean,
+      default: false
+    },
     icon: {},
     iconTitle: {},
     modelValue: {},
@@ -39,6 +43,15 @@
   })
 
   defineEmits([`update:modelValue`])
+
+  const getClasses = () => {
+    const { danger } = props
+    if (danger) {
+      return [`border-danger`]
+    } else {
+      return [`border-primary`]
+    }
+  }
 </script>
 
 <style scoped>

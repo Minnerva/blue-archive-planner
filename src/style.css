@@ -26,9 +26,15 @@ body,
 .border-primary {
   border-color: var(--blue);
 }
+.border-danger {
+  border-color: var(--red);
+}
 
 .bg-primary {
   background: var(--blue);
+}
+.bg-danger {
+  background: var(--red);
 }
 
 .text-primary {

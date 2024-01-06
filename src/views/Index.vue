@@ -184,6 +184,7 @@
         <div class="h-10 text-md0 md:text-xl font-bold border-b">Upcoming Banners</div>
         <ListBanner
           class="max-h-56 overflow-auto pr-2"
+          :selected-date="date"
         ></ListBanner>
       </template>
     </Card>

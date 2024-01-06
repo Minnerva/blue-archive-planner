@@ -139,7 +139,7 @@
             },
             grid: {
               color: (context) => {
-                return context.tick.value <= 0 ? 'red' : ``
+                return context.tick.value <= 0 ? 'red' : `#EEE`
               }
             }
           }

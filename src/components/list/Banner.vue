@@ -40,6 +40,7 @@
       banner.current_month = date.format(`YYYY-MM`) === selectedDate.format(`YYYY-MM`)
       return banner
     })
-    .filter(banner => banner.diff > banner.duration*-1 && banner.current_month)
+    .filter(banner => banner.current_month)
+    // .filter(banner => banner.diff > banner.duration*-1 && banner.current_month)
   })
 </script>

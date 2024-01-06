@@ -1,4 +1,5 @@
-import { saveData, setListDataListen } from '@/utils'
+import { find, saveData, setListDataListen } from '@/utils'
+import dataBanners from '@/data/banners.js'
 
 export default {
   namespaced: true,
@@ -17,6 +18,16 @@ export default {
     find: (state) => (key) => {
       const item = state.banner_pull[key]
       return item ? item : null
+    },
+    withDate (state) {
+      const { banner_pull } = state
+      Object.keys(state.banner_pull).forEach(banner_key => {
+        const banner = banner_pull[banner_key]
+        const group_banner = find(dataBanners, { uuid: banner.uuid })
+        banner.date = group_banner ? group_banner.date : ``
+      })
+
+      return banner_pull
     }
   },
   actions: {

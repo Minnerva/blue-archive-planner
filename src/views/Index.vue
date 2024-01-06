@@ -226,7 +226,6 @@
   import IconPulls from '@/assets/icons/icon-pulls.png'
   import Icon3StarsUnit from '@/assets/icons/icon-3-stars-unit.png'
   import MikaPortrait from '@/assets/students/mika-portrait.webp'
-  import { config } from 'dotenv'
 
   // TODO: Switch between pyroxene view and pull view
 
@@ -541,7 +540,7 @@
     const own_data = []
     const predict_data = []
     const latest_date = latest_data.value ? getDayjsNoTime(latest_data.value.date) : false
-    const banner_pull = store.state[`ba-banner-pull`].banner_pull
+    const banner_pull = store.getters[`ba-banner-pull/withDate`]
     const banner_keys = Object.keys(banner_pull)
     let estimate_pyroxene = false
     let estimate_banner_old_flag = false

@@ -53,7 +53,8 @@
 
   const getDayDiff = () => {
     if (props.item.diff <= 0) {
-      return ` - Live`
+      // return ` - Live`
+      return ``
     } else {
       return ` - ${props.item.diff} days`
     }
@@ -70,7 +71,7 @@
       store.dispatch(`ba-banner-pull/save`, {
         key,
         data: {
-          date: banner.date,
+          uuid: banner.uuid,
           student_key: banner.student_key,
           pull: pull.value
         }

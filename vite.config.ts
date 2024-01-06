@@ -17,7 +17,8 @@ export default defineConfig({
       `FIREBASE_MESSAGING_SENDER_ID`,
       `FIREBASE_APP_ID`,
       `FIREBASE_MEASUREMENT_ID`,
-      `FIREBASE_DATABASE_URL`
+      `FIREBASE_DATABASE_URL`,
+      `FIREBASE_DATABASE_PREFIX`
     ]),
     splitVendorChunkPlugin()
   ],

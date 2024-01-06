@@ -4,8 +4,7 @@ import { getData, getDataListen, saveData } from '@/utils'
 
 export default createStore({
   state: {
-    DB_PATH_USER: `/users`,
-    DB_PATH_BLUE_ARCHIVE_CURRENCY: `/blue-archive-currencies`,
+    DB_PATH_USER: `/${process.env.FIREBASE_DATABASE_PREFIX}users`,
 
     user: false,
     uid: false,

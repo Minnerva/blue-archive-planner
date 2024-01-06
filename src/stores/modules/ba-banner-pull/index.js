@@ -4,7 +4,7 @@ import dataBanners from '@/data/banners.js'
 export default {
   namespaced: true,
   state: {
-    DB_PATH_BA_BANNER_PULL: `/ba-banner-pull`,
+    DB_PATH_BA_BANNER_PULL: `/${process.env.FIREBASE_DATABASE_PREFIX}ba-banner-pull`,
     
     banner_pull: false,
     listGetUpcomingListener: false,

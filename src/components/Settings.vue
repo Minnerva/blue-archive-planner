@@ -57,7 +57,7 @@
   })
 
   const store = useStore()
-  const settings = reactive(store.state.user.settings)
+  const settings = reactive(store.state.user.settings || {})
   const form = reactive({
     chart_display: settings && settings.chart_display ? settings.chart_display : `pull`,
     date_display: settings && settings.date_display ? settings.date_display : `YYYY-MMM-DD`,

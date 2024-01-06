@@ -315,8 +315,8 @@
     const newConfigs = {
       ...configs,
       date_format: getDateFormat(user.settings),
-      chart_display: user.settings.chart_display,
-      estimate_pyroxene: user.settings.estimate_pyroxene
+      chart_display: user.settings && user.settings.chart_display ? user.settings.chart_display : `pull`,
+      estimate_pyroxene: user.settings && user.settings.estimate_pyroxene ? user.settings.estimate_pyroxene : null
     }
     store.commit(`setConfigs`, newConfigs)
   }

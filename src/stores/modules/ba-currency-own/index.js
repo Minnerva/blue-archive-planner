@@ -3,7 +3,7 @@ import { saveData, setListDataListen } from '@/utils'
 export default {
   namespaced: true,
   state: {
-    DB_PATH_BA_CURRENCY_OWN: `/ba-currency-own`,
+    DB_PATH_BA_CURRENCY_OWN: `/${process.env.FIREBASE_DATABASE_PREFIX}ba-currency-own`,
     
     listGetListener: false,
     listLatestListener: false,

@@ -13,8 +13,10 @@
       :placeholder="placeholder"
       :type="type"
       :value="modelValue"
+      :max="max"
       @input="$emit(`update:modelValue`, $event.target.value)"
       @change="onChange"
+      :required="required"
     >
   </div>
 </template>
@@ -33,6 +35,13 @@
     },
     placeholder: {
       default: ``
+    },
+    max: {
+      default: ``
+    },
+    required: {
+      type: Boolean,
+      default: false
     },
     onChange: {
       type: Function,

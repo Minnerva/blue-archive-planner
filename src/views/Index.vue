@@ -128,6 +128,7 @@
               :icon="IconCalendar"
               icon-title="Date"
               type="date"
+              :max="today_date.format(`YYYY-MM-DD`)"
               :danger="form_tab_active === `use`"
             ></InputBase>
           </div>
@@ -229,7 +230,8 @@
     }
   ])
   const form_tab_active = ref(`record`)
-  const date = ref(dayjs())
+  const today_date = ref(dayjs())
+  const date = ref(today_date.value)
   const currency_own = ref([])
   const currency_use = ref({})
   const histories = ref([])
@@ -438,51 +440,56 @@
 
   const onSave = async () => {
     const form_day = getDayjsNoTime(form.day)
-    let data = {
-      pyroxene: form.pyroxene,
-      free_pull: form.free_pull
-    }
-    
-    if (form_tab_active.value === `record`) {
-      if (isNaN(data.pyroxene)) {
-        data.pyroxene = latest_data.value ? latest_data.value.pyroxene : 0
-      }
-      if (isNaN(data.free_pull)) {
-        data.free_pull = latest_data.value ? latest_data.value.free_pull : 0
-      }
 
-      store.dispatch(`ba-currency-own/save`, {
-        key: form_day.format(`YYYY-MM-DD`),
-        data
-      })
-    } else if (form_tab_active.value === `use`) {
-      if (
-        (isNaN(data.pyroxene) && isNaN(data.free_pull)) ||
-        (data.pyroxene <= 0 && data.free_pull <= 0)
-      ) {
-        data = null
-      } else {
+    if (!form_day.isValid()) {
+      window.alert(`Date is invalid.`)
+    } else {
+      let data = {
+        pyroxene: form.pyroxene,
+        free_pull: form.free_pull
+      }
+      
+      if (form_tab_active.value === `record`) {
         if (isNaN(data.pyroxene)) {
-          data.pyroxene = 0
+          data.pyroxene = latest_data.value ? latest_data.value.pyroxene : 0
         }
         if (isNaN(data.free_pull)) {
-          data.free_pull = 0
+          data.free_pull = latest_data.value ? latest_data.value.free_pull : 0
         }
+
+        store.dispatch(`ba-currency-own/save`, {
+          key: form_day.format(`YYYY-MM-DD`),
+          data
+        })
+      } else if (form_tab_active.value === `use`) {
+        if (
+          (isNaN(data.pyroxene) && isNaN(data.free_pull)) ||
+          (data.pyroxene <= 0 && data.free_pull <= 0)
+        ) {
+          data = null
+        } else {
+          if (isNaN(data.pyroxene)) {
+            data.pyroxene = 0
+          }
+          if (isNaN(data.free_pull)) {
+            data.free_pull = 0
+          }
+        }
+
+        store.dispatch(`ba-currency-use/save`, {
+          key: form_day.format(`YYYY-MM-DD`),
+          data
+        })
+      } else {
+        console.error(`Form Active Key is invalid.`)
       }
 
-      store.dispatch(`ba-currency-use/save`, {
-        key: form_day.format(`YYYY-MM-DD`),
-        data
-      })
-    } else {
-      console.error(`Form Active Key is invalid.`)
+      // reset form
+      form.pyroxene = undefined
+      form.free_pull = undefined
+
+      updateChartData()
     }
-
-    // reset form
-    form.pyroxene = undefined
-    form.free_pull = undefined
-
-    updateChartData()
   }
 
   const updateChartData = () => {

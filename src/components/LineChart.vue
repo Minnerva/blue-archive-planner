@@ -4,20 +4,21 @@
 
 <script setup>
   import { watch, onMounted } from 'vue'
-  import Chart from 'chart.js/auto'
-  // import { Chart, LineController, LineElement, PointElement, CategoryScale, LinearScale, Tooltip } from 'chart.js'
+  import { useStore } from 'vuex'
+  // import Chart from 'chart.js/auto'
+  import { Chart, LineController, LineElement, PointElement, CategoryScale, LinearScale, Tooltip } from 'chart.js'
   import dataStudents from '@/data/students.js'
   import { find } from '@/utils'
 
   // For tree shaking, might not need as only 100kb diff
-  // Chart.register(
-  //   LineController,
-  //   LineElement,
-  //   PointElement,
-  //   CategoryScale,
-  //   LinearScale,
-  //   Tooltip
-  // )
+  Chart.register(
+    LineController,
+    LineElement,
+    PointElement,
+    CategoryScale,
+    LinearScale,
+    Tooltip
+  )
 
   const props = defineProps({
     labels: { type: Array, required: true },
@@ -30,6 +31,7 @@
     }
   })
 
+  const store = useStore()
   // don't need to make multiple chart yet
   const chart_id = `chart`
   let $chart = null
@@ -65,7 +67,6 @@
                 if (!images[student.key]) {
                   const image = new Image(width, height)
                   image.src = student.icon
-
                   images[student.key] = image
                 }
 
@@ -79,10 +80,14 @@
   })
   
   const updateChart = () => {
+    const { configs } = store.state
+
     $chart.data.labels = props.labels
     props.data.forEach((items, i) => {
       $chart.data.datasets[i].data = items
     })
+
+    $chart.options.scales.y.ticks.stepSize = configs.chart_display === `pull` ? 100 : null
     $chart.update()
   }
 

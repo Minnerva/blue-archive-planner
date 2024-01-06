@@ -4,7 +4,7 @@
       class="col-span-2"
       :class="getHistoryCurrentDateClasses(item.date)"
     >
-      {{ item.date }}
+      {{ getDayjsNoTime(item.date).format(configs.date_format.date) }}
     </div>
 
     <div class="col-span-1 border-r">
@@ -44,12 +44,6 @@
         :own="use.free_pull"
         danger
       ></ListItemHistorySub>
-
-      <!-- <ListItemHistorySub
-        :icon="Icon3StarsUnit"
-        icon-title="Spark"
-        :own="getBlueArchiveSpark(getBlueArchiveTotalPull(item))"
-      ></ListItemHistorySub> -->
     </div>
 
     <div class="col-span-full flex justify-center">
@@ -64,14 +58,14 @@
 </template>
 
 <script setup>
-  import { ref } from 'vue'
+  import { ref, computed } from 'vue'
+  import { useStore } from 'vuex'
   import dayjs from 'dayjs'
-  import { getBlueArchiveTotalPull, getBlueArchiveSpark } from '@/utils'
+  import { getBlueArchiveTotalPull, getDayjsNoTime } from '@/utils'
   import ListItemHistorySub from '@/components/list-item/HistorySub.vue'
   import IconPyroxene from '@/assets/icons/pyroxene.webp'
   import IconRecruitmentTicket from '@/assets/icons/recruitment-ticket.webp'
   import IconPulls from '@/assets/icons/icon-pulls.png'
-  import Icon3StarsUnit from '@/assets/icons/icon-3-stars-unit.png'
 
   const props = defineProps({
     item: {
@@ -81,7 +75,10 @@
       default: false
     }
   })
+
+  const store = useStore()
   const current_date = ref(dayjs())
+  const configs = computed(() => store.state.configs)
 
   const getHistoryCurrentDateClasses = (history_date) => {
     if (history_date === current_date.value.format(`YYYY-MM-DD`)) {

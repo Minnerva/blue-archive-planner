@@ -3,7 +3,7 @@
     <div class="col-span-full md:col-span-5 xl:col-span-6">
       <div class="flex justify-center text-center">
         <img :src="IconLeft" class="cursor-pointer select-none" @click="onPrev">
-        <span class="mx-4 text-xl md:text-3xl font-bold">{{ date.format(`YYYY-MM`) }}</span>
+        <span class="mx-4 text-xl md:text-3xl font-bold">{{ date.format(configs.date_format.no_day) }}</span>
         <img :src="IconRight" class="cursor-pointer select-none" @click="onNext">
       </div>
       
@@ -189,6 +189,15 @@
       </template>
     </Card>
 
+    <Card class="col-span-full md:col-span-2">
+      <template v-slot:body>
+        <div class="h-10 text-md0 md:text-xl font-bold border-b mb-3">Settings</div>
+        <Settings
+          class="max-h-56 overflow-auto pr-2"
+        ></Settings>
+      </template>
+    </Card>
+
     <div class="col-span-full md:col-span-full xl:col-span-2 grid items-center content-end">
       <div class="text-center">
         <img class="inline-block max-w-36" :src="MikaPortrait" title="My Wife!!!">
@@ -198,7 +207,7 @@
 </template>
 
 <script setup>
-  import { ref, reactive, onMounted } from 'vue'
+  import { ref, reactive, computed, onMounted } from 'vue'
   import { useStore } from 'vuex'
   import dayjs from 'dayjs'
   import { filterObject, getDayjsNoTime, getBlueArchiveTotalPull, formatCurrency, getBlueArchiveSpark } from '@/utils'
@@ -208,6 +217,7 @@
   import ButtonBase from '@/components/button/Base.vue'
   import ListHistory from '@/components/list/History.vue'
   import ListBanner from '@/components/list/Banner.vue'
+  import Settings from '@/components/Settings.vue'
   import IconLeft from '@/assets/icons/fa-chevron-left.svg'
   import IconRight from '@/assets/icons/fa-chevron-right.svg'
   import IconCalendar from '@/assets/icons/fa-calendar.svg'
@@ -216,6 +226,7 @@
   import IconPulls from '@/assets/icons/icon-pulls.png'
   import Icon3StarsUnit from '@/assets/icons/icon-3-stars-unit.png'
   import MikaPortrait from '@/assets/students/mika-portrait.webp'
+  import { config } from 'dotenv'
 
   // TODO: Switch between pyroxene view and pull view
 
@@ -230,13 +241,14 @@
       label: `Use`
     }
   ])
+  const configs = computed(() => store.state.configs)
   const form_tab_active = ref(`record`)
   const today_date = ref(dayjs())
   const date = ref(today_date.value)
   const currency_own = ref([])
   const currency_use = ref({})
   const histories = ref([])
-  const average_gain_per_day = 12000/30 // per month will bug with February
+  // const average_gain_per_day = 12000/30 // per month will bug with February
   const latest_data = ref({
     date: ``,
     pyroxene: 0,
@@ -287,6 +299,37 @@
       form.free_pull = undefined
       form_tab_active.value = tab_key
     }
+  }
+
+  const getDateFormat = (settings) => {
+    const date_format = settings && settings.date_display ? settings.date_display : `YYYY-MMM-DD`
+    const splits = date_format.split(`-`)
+    
+    return {
+      date: date_format,
+      no_day: `${splits[0]}-${splits[1]}`
+    }
+  }
+
+  const setConfigs = () => {
+    const { user, configs } = store.state
+    const newConfigs = {
+      ...configs,
+      date_format: getDateFormat(user.settings),
+      chart_display: user.settings.chart_display,
+      estimate_pyroxene: user.settings.estimate_pyroxene
+    }
+    store.commit(`setConfigs`, newConfigs)
+  }
+
+  const setGetUser = () => {
+    store.dispatch(`setUserListen`, (record) => {
+      if (record) {
+        store.commit(`setUser`, record)
+        setConfigs()
+        updateChartData()
+      }
+    })
   }
 
   const setLatestRecord = () => {
@@ -503,6 +546,8 @@
     let estimate_pyroxene = false
     let estimate_banner_old_flag = false
     const pull_banners = []
+    const { configs } = store.state
+    const average_gain_per_day = Math.floor((configs.estimate_pyroxene || 12000)/30)
 
     const start_date = date.value.startOf(`month`)
     const end_date = date.value.endOf(`month`)
@@ -516,10 +561,14 @@
       let predict_pull = null
       
       if (plot_date_own) {
-        own_pull = getBlueArchiveTotalPull({
-          pyroxene: plot_date_own.pyroxene, 
-          free_pull: plot_date_own.free_pull
-        })
+        if (configs.chart_display === `pyroxene`) {
+          own_pull = plot_date_own.pyroxene + (plot_date_own.free_pull*120)
+        } else {
+          own_pull = getBlueArchiveTotalPull({
+            pyroxene: plot_date_own.pyroxene, 
+            free_pull: plot_date_own.free_pull
+          })
+        }
       }
 
       if (latest_date) {
@@ -566,10 +615,14 @@
             })
           }
 
-          predict_pull = getBlueArchiveTotalPull({
-            pyroxene: estimate_pyroxene,
-            free_pull: latest_data.value.free_pull
-          })
+          if (configs.chart_display === `pyroxene`) {
+            predict_pull = estimate_pyroxene + (latest_data.value.free_pull*120)
+          } else {
+            predict_pull = getBlueArchiveTotalPull({
+              pyroxene: estimate_pyroxene,
+              free_pull: latest_data.value.free_pull
+            })
+          }
         }
 
         // get pull of this month
@@ -581,7 +634,10 @@
         }
       }
 
-      labels.push(plot_date_string)
+      // change date format
+      const label = plot_date.format(configs.date_format.date)
+
+      labels.push(label)
       own_data.push(own_pull)
       predict_data.push(predict_pull)
     }
@@ -592,6 +648,8 @@
   }
 
   onMounted(() => {
+    setConfigs()
+    setGetUser()
     setLatestRecord()
     setGetUpcomingBannerPullListener()
     setCurrencyDataFromYearMonth(date.value.format(`YYYY`), date.value.format(`MM`))

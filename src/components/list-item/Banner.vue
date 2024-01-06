@@ -4,7 +4,10 @@
       <img :src="student.icon" :title="student.full_name">
     </div>
     <div class="col-span-8 lg:col-span-8">
-      <div>{{ item.date }}{{ getDayDiff() }}</div>
+      <div>
+        {{ getDayjsNoTime(item.date).format(configs.date_format.date) }}
+        {{ getDayDiff() }}
+      </div>
       <div>{{ student.full_name }} </div>
       <div>
         <InputBase
@@ -21,9 +24,9 @@
 </template>
 
 <script setup>
-  import { ref, watch, onMounted } from 'vue'
+  import { ref, watch, computed, onMounted } from 'vue'
   import { useStore } from 'vuex' 
-  import { find } from '@/utils'
+  import { find, getDayjsNoTime } from '@/utils'
   import InputBase from '@/components/input/Base.vue'
   import dataStudents from '@/data/students.js'
   import IconPulls from '@/assets/icons/icon-pulls.png'
@@ -35,6 +38,7 @@
     bannerPull: {}
   })
   const store = useStore()
+  const configs = computed(() => store.state.configs)
   const pull = ref(null)
   const student = find(dataStudents, { key: props.item.student_key })
   

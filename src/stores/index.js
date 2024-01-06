@@ -8,14 +8,22 @@ export default createStore({
     DB_PATH_BLUE_ARCHIVE_CURRENCY: `/blue-archive-currencies`,
 
     user: false,
-    uid: false
+    uid: false,
+    configs: {
+      date_format: {}
+    },
+
+    userListen: false,
   },
   mutations: {
     setUser (state, user) {
-      state.user = user ? {...user} : false
+      state.user = user || false
     },
     setUID (state, uid) {
-      state.uid = uid ? uid : false
+      state.uid = uid || false
+    },
+    setConfigs (state, configs) {
+      state.configs = configs || false
     }
   },
   actions: {
@@ -23,7 +31,11 @@ export default createStore({
       return getData(`${state.DB_PATH_USER}/${state.uid}`)
     },
     setUserListen ({ state }, callback) {
-      getDataListen(`${state.DB_PATH_USER}/${state.uid}`, (user) => callback(user))
+      const { userListen } = state
+      if (userListen) {
+        state.userListen = false
+      }
+      state.userListen = getDataListen(`${state.DB_PATH_USER}/${state.uid}`, (user) => callback(user))
     },
     async saveUser ({ state }, user) {
       await saveData(`${state.DB_PATH_USER}/${state.uid}`, user)

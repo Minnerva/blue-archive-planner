@@ -114,6 +114,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        spanGaps: true,
         plugins: {
           // legend: {
           //   display: false

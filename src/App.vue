@@ -49,7 +49,7 @@
           if (!user) {
             updateUserData = {
               ign: ``,
-              active: false,
+              active: true,
               created_at: currentTime,
               last_signed_in_at: currentTime
             }

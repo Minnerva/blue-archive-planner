@@ -20,8 +20,7 @@ let students = [
     alter: `Tracksuit`
   },
   {
-    name: `Himari`,
-    alter: ``
+    name: `Himari`
   },
   {
     name: `Hina`,
@@ -44,8 +43,7 @@ let students = [
     alter: `New Year`
   },
   {
-    name: `Kikyou`,
-    alter: ``
+    name: `Kikyou`
   },
   {
     name: `Kotama`,
@@ -60,8 +58,7 @@ let students = [
     alter: `Swimsuit`
   },
   {
-    name: `Misaka Mikoto`,
-    alter: ``
+    name: `Misaka Mikoto`
   },
   {
     name: `Miyako`,
@@ -76,8 +73,7 @@ let students = [
     alter: `Swimsuit`
   },
   {
-    name: `Renge`,
-    alter: ``
+    name: `Renge`
   },
   {
     name: `Saki`,
@@ -88,8 +84,7 @@ let students = [
     alter: `Swimsuit`
   },
   {
-    name: `Shokuhou Misaki`,
-    alter: ``
+    name: `Shokuhou Misaki`
   },
   {
     name: `Ui`,
@@ -100,16 +95,54 @@ let students = [
     alter: `Swimsuit`
   },
   {
-    name: `Yukari`,
-    alter: ``
+    name: `Yukari`
   },
   {
     name: `Yuuka`,
     alter: `Tracksuit`
+  },
+  {
+    name: `Wakamo`
+  },
+  {
+    name: `Cherino`
+  },
+  {
+    name: `Marina`
+  },
+  {
+    name: `Chise`,
+    alter: `Swimsuit`
+  },
+  {
+    name: `Izuna`,
+    alter: `Swimsuit`
+  },
+  {
+    name: `Meru`
+  },
+  {
+    name: `Shun`
+  },
+  {
+    name: `Shun`,
+    alter: `Small`
+  },
+  {
+    name: `Saya`,
+    alter: `Casual`
+  },
+  {
+    name: `Saya`
+  },
+  {
+    name: `Kokona`
   }
 ]
 
 students = students.map(student => {
+  if (!student.alter) student.alter = ``
+
   student.full_name = student.alter ? `${student.name} (${student.alter})` : student.name
   student.key = student.full_name.replace(/[()]/g, ``).replace(/\s/g, `-`).toLocaleLowerCase()
   student.icon = new URL(`/src/assets/students/${student.key}-icon.webp`, import.meta.url).href

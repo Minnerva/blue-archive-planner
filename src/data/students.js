@@ -137,6 +137,60 @@ let students = [
   },
   {
     name: `Kokona`
+  },
+  {
+    name: `Cherino`,
+    alter: `Hot Spring`
+  },
+  {
+    name: `Chinatsu`
+  },
+  {
+    name: `Chinatsu`,
+    alter: `Hot Spring`
+  },
+  {
+    name: `Ichika`
+  },
+  {
+    name: `Kasumi`
+  },
+  {
+    name: `Kotori`
+  },
+  {
+    name: `Kotori`,
+    alter: `Cheer Squad`
+  },
+  {
+    name: `Mari`
+  },
+  {
+    name: `Noa`
+  },
+  {
+    name: `Nodoka`
+  },
+  {
+    name: `Nodoka`,
+    alter: `Hot Spring`
+  },
+  {
+    name: `Shigure`
+  },
+  {
+    name: `Shigure`,
+    alter: `Hot Spring`
+  },
+  {
+    name: `Utaha`
+  },
+  {
+    name: `Utaha`,
+    alter: `Cheer Squad`
+  },
+  {
+    name: `Yuuka`
   }
 ]
 

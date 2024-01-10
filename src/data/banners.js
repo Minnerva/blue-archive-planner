@@ -3,8 +3,15 @@ import y2024 from './banners/2024'
 
 const combined = [...y2023, ...y2024]
 const banners = []
+const temp_uuid = []
 
 combined.forEach(item => {
+  if (temp_uuid.indexOf(item.uuid) === -1) {
+    temp_uuid.push(item.uuid)
+  } else {
+    throw `Duplicate UUID in banner data: ${item.uuid}`
+  }
+
   item.students.forEach(student_key => {
     banners.push({
       uuid: item.uuid,

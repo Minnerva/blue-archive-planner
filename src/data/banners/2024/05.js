@@ -8,6 +8,15 @@ export default [
     ]
   },
   {
+    uuid: `739b57d1-bf5a-4ef9-85c3-b51376f1a926`,
+    date: `2024-05-09`,
+    duration: 7,
+    students: [
+      `saori`,
+      `hiyori`
+    ]
+  },
+  {
     uuid: `3b2b4af3-0094-47ee-9b4a-ab7f4e18cfc7`,
     date: `2024-05-16`,
     duration: 14,
@@ -21,6 +30,7 @@ export default [
     date: `2024-05-30`,
     duration: 7,
     students: [
+      `eimi-swimsuit`,
       `himari`
     ]
   }

@@ -6,7 +6,7 @@
   import { watch, onMounted } from 'vue'
   import { useStore } from 'vuex'
   // import Chart from 'chart.js/auto'
-  import { Chart, LineController, LineElement, PointElement, CategoryScale, LinearScale, Tooltip } from 'chart.js'
+  import { Chart, LineController, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js'
   import dataStudents from '@/data/students.js'
   import { find } from '@/utils'
 
@@ -17,7 +17,8 @@
     PointElement,
     CategoryScale,
     LinearScale,
-    Tooltip
+    Tooltip,
+    Legend
   )
 
   const props = defineProps({
@@ -43,7 +44,6 @@
 
   Chart.register({
     id: `default`,
-
     afterDatasetsDraw (chart) {
       const data = chart.getDatasetMeta(0).data
       
@@ -108,6 +108,13 @@
             data: [],
             borderColor: `#FFE9F2`,
             backgroundColor: `#FFFFFF`
+          },
+          {
+            label: `Calibrate`,
+            data: [],
+            borderColor: `rgba(225, 225, 225, 0.4)`,
+            backgroundColor: `rgba(225, 225, 225, 0)`,
+            order: -1
           }
         ]
       },

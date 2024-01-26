@@ -210,7 +210,7 @@
   import { ref, reactive, computed, onMounted } from 'vue'
   import { useStore } from 'vuex'
   import dayjs from 'dayjs'
-  import { filterObject, getDayjsNoTime, getBlueArchiveTotalPull, formatCurrency, getBlueArchiveSpark } from '@/utils'
+  import { filterObject, getDayjsNoTime, getBlueArchiveTotalPull, formatCurrency, getBlueArchiveSpark, getBlueArchiveTotalCurrenyWorth } from '@/utils'
   import LineChart from '@/components/LineChart.vue'
   import Card from '@/components/Card.vue'
   import InputBase from '@/components/input/Base.vue'
@@ -539,6 +539,7 @@
     const labels = []
     const own_data = []
     const predict_data = []
+    const calibrate_data = []
     const latest_date = latest_data.value ? getDayjsNoTime(latest_data.value.date) : false
     const banner_pull = store.getters[`ba-banner-pull/withDate`]
     const banner_keys = Object.keys(banner_pull)
@@ -547,26 +548,49 @@
     const pull_banners = []
     const { configs } = store.state
     const average_gain_per_day = Math.floor((configs.estimate_pyroxene || 12000)/30)
+    let first_own_pull_index = -1
+    let first_own_pull_date = ``
+    let calibrate_total_use = 0
 
     const start_date = date.value.startOf(`month`)
     const end_date = date.value.endOf(`month`)
     const day_amount = (start_date.diff(end_date, `day`) * -1) + 1 // reverse negative then +1 to count the start date as well
+    const last_day_index = day_amount - 1
 
     for (let i = 0; i < day_amount; i++) {
       const plot_date = start_date.add(i, `day`)
       const plot_date_string = plot_date.format(`YYYY-MM-DD`)
       const plot_date_own = currency_own.value ? currency_own.value[plot_date_string] : false
+      const use_data = currency_use.value ? currency_use.value[plot_date_string] : false
       let own_pull = null
       let predict_pull = null
+      let calibrate_pull = null
       
       if (plot_date_own) {
+        let own_pyrox_worth = getBlueArchiveTotalCurrenyWorth({
+          pyroxene: plot_date_own.pyroxene,
+          free_pull: plot_date_own.free_pull
+        })
+
+        if (use_data) {
+          own_pyrox_worth -= getBlueArchiveTotalCurrenyWorth({
+            pyroxene: use_data.pyroxene,
+            free_pull: use_data.free_pull
+          })
+        }
+
         if (configs.chart_display === `pyroxene`) {
-          own_pull = plot_date_own.pyroxene + (plot_date_own.free_pull*120)
+          own_pull = own_pyrox_worth
         } else {
           own_pull = getBlueArchiveTotalPull({
-            pyroxene: plot_date_own.pyroxene, 
-            free_pull: plot_date_own.free_pull
+            pyroxene: own_pyrox_worth, 
+            free_pull: 0
           })
+        }
+
+        if (first_own_pull_index === -1) {
+          first_own_pull_index = i
+          first_own_pull_date = plot_date_string
         }
       }
 
@@ -633,16 +657,48 @@
         }
       }
 
+      // get calibrate data if at least has a record in this month based on pyrox per day and pull data
+      if (first_own_pull_index > -1 && plot_date_own) {
+        const calibrate_diff_day = i - first_own_pull_index
+        let calibrate_add_pyrox = calibrate_diff_day * average_gain_per_day
+        const first_data_monthly = currency_own.value[first_own_pull_date]
+        
+
+        // minus use
+        if (use_data) {
+          calibrate_total_use += getBlueArchiveTotalCurrenyWorth({
+            pyroxene: use_data.pyroxene,
+            free_pull: use_data.free_pull
+          })
+        }
+        
+        calibrate_add_pyrox -= calibrate_total_use
+
+        const calibrate_pyrox_worth = getBlueArchiveTotalCurrenyWorth({
+          pyroxene: first_data_monthly.pyroxene + calibrate_add_pyrox,
+          free_pull: first_data_monthly.free_pull
+        })
+        if (configs.chart_display === `pyroxene`) {
+          calibrate_pull = calibrate_pyrox_worth
+        } else {
+          calibrate_pull = getBlueArchiveTotalPull({
+            pyroxene: calibrate_pyrox_worth, 
+            free_pull: 0
+          })
+        }
+      }
+
       // change date format
       const label = plot_date.format(configs.date_format.date)
 
       labels.push(label)
       own_data.push(own_pull)
       predict_data.push(predict_pull)
+      calibrate_data.push(calibrate_pull)
     }
 
     chartProps.value.labels = labels
-    chartProps.value.data = [own_data, predict_data]
+    chartProps.value.data = [own_data, predict_data, calibrate_data]
     chartProps.value.pull_banners = pull_banners
   }
 

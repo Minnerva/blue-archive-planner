@@ -404,16 +404,18 @@
   const updateSummaryMonthly = () => {
     let total_diff_in_pyrox = 0
 
-    if (histories.value.length > 0 && currency_use.value) {
+    if (histories.value.length > 0) {
       summary.monthly.total_earn = 0
       summary.monthly.use_pyroxene = 0
       summary.monthly.use_free_pull = 0
 
       // Get total use
-      for (let key in currency_use.value) {
-        const obj_use = currency_use.value[key]
-        summary.monthly.use_pyroxene += obj_use.pyroxene
-        summary.monthly.use_free_pull += obj_use.free_pull
+      if (currency_use.value) {
+        for (let key in currency_use.value) {
+          const obj_use = currency_use.value[key]
+          summary.monthly.use_pyroxene += obj_use.pyroxene
+          summary.monthly.use_free_pull += obj_use.free_pull
+        }
       }
 
       // Get total earn

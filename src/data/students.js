@@ -207,6 +207,73 @@ let students = [
   {
     name: `Eimi`,
     alter: `Swimsuit`
+  },
+  {
+    name: `Ako`,
+    alter: `Dress`
+  },
+  {
+    name: `Ako`
+  },
+  {
+    name: `Aru`
+  },
+  {
+    name: `Aru`,
+    alter: `New Year`
+  },
+  {
+    name: `Atsuko`
+  },
+  {
+    name: `Hina`
+  },
+  {
+    name: `Hina`,
+    alter: `Dress`
+  },
+  {
+    name: `Hoshino`
+  },
+  {
+    name: `Hoshino`,
+    alter: `Swimsuit`
+  },
+  {
+    name: `Kayoko`
+  },
+  {
+    name: `Makoto`
+  },
+  {
+    name: `Megu`
+  },
+  {
+    name: `Misaki`
+  },
+  {
+    name: `Mutsuki`
+  },
+  {
+    name: `Mutsuki`,
+    alter: `New Year`
+  },
+  {
+    name: `Serika`
+  },
+  {
+    name: `Serika`,
+    alter: `New Year`
+  },
+  {
+    name: `Haruka`
+  },
+  {
+    name: `Haruka`,
+    alter: `New Year`
+  },
+  {
+    name: `Iroha`
   }
 ]
 

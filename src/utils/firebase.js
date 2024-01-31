@@ -2,7 +2,7 @@ import { getAuth } from 'firebase/auth'
 import { 
   getDatabase, ref, query, push, set, get, child, onValue, 
   orderByKey, orderByChild, limitToFirst, limitToLast, startAt, endAt,
-  endBefore
+  endBefore, equalTo
  } from 'firebase/database'
 
 export const getUID = () => {
@@ -45,8 +45,17 @@ export const pushData = (db_path, data) => {
 export const setListDataListen = (db_path, callback, options = {}) => {
   if (!options.filters) options.filters = []
   const db = getDatabase()
-  const queryConstraints = []
+  const queryConstraints = getQueryConstraints(options)
   let queryRef = null
+
+  queryRef = query(ref(db, db_path), ...queryConstraints)
+  onValue(queryRef, (snapshopt) => callback(snapshopt.val()))
+
+  return queryRef
+}
+
+export const getQueryConstraints = (options) => {
+  const queryConstraints = []
 
   switch (options.order) {
     case `child`:
@@ -86,9 +95,11 @@ export const setListDataListen = (db_path, callback, options = {}) => {
           queryConstraints.push(startAt(filter.value))
         }
         break
+      case `equal`:
+        queryConstraints.push(equalTo(filter.value))
+        break 
     }
   })
 
-  queryRef = query(ref(db, db_path), ...queryConstraints)
-  onValue(queryRef, (snapshopt) => callback(snapshopt.val()))
+  return queryConstraints
 }

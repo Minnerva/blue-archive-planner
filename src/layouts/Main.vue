@@ -1,6 +1,6 @@
 <template>
   <div class="w-full py-3 md:px-8 sm:px-6 px-4">
-    <template v-if="user">
+    <!-- <template v-if="user">
       <div v-if="!user.ign">
         <Card>
           <template v-slot:body>
@@ -18,7 +18,8 @@
 
       <div v-else-if="!user.active">Please contact Minnerva to activate your account.</div>
       <router-view v-else></router-view>
-    </template>
+    </template> -->
+    <router-view v-if="user !== false"></router-view>
   </div>
 </template>
 

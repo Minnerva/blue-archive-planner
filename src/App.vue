@@ -1,7 +1,6 @@
 <template>
   <Nav></Nav>
   <router-view></router-view>
-  <!-- <Footer></Footer> -->
 </template>
 
 <script setup>
@@ -35,11 +34,11 @@
   getAnalytics(app)
 
   auth.onAuthStateChanged(async (currentUser) => {
-    if (!currentUser && store.state.user) {
+    if (!currentUser && store.state.user === null) {
       // prevent infinite calling on setUserListen when same user sign in, sign out, and then sign in again
       window.location.reload()
     } else if (!currentUser) {
-      store.commit(`setUser`, false)
+      store.commit(`setUser`, null)
     } else {
       store.commit(`setUID`, currentUser.uid)
       let updateUserData = {}

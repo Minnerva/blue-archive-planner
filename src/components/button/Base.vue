@@ -2,6 +2,7 @@
   <button
     class="rounded w-full h-8 select-none"
     :class="[getClasses()]"
+    :type="submit ? `submit` : `button`"
     @click="onClick"
   >
     <slot></slot>
@@ -10,6 +11,7 @@
 
 <script setup>
   const props = defineProps({
+    submit: Boolean,
     primary: Boolean,
     danger: Boolean,
     onClick: Function

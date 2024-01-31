@@ -1,12 +1,14 @@
 import { createStore } from 'vuex'
 import modules from './modules'
-import { getData, getDataListen, saveData } from '@/utils'
+import { getData, getDataListen, saveData, setListDataListen } from '@/utils'
+import { off } from 'firebase/database'
 
 export default createStore({
   state: {
     DB_PATH_USER: `/${process.env.FIREBASE_DATABASE_PREFIX}users`,
+    DB_PATH_USER_PUBLIC: `/${process.env.FIREBASE_DATABASE_PREFIX}users-public`,
 
-    user: false,
+    user: false, // Google will return null if not signed in yet
     uid: false,
     configs: {
       date_format: {}
@@ -16,7 +18,7 @@ export default createStore({
   },
   mutations: {
     setUser (state, user) {
-      state.user = user || false
+      state.user = user
     },
     setUID (state, uid) {
       state.uid = uid || false
@@ -36,8 +38,27 @@ export default createStore({
       }
       state.userListen = getDataListen(`${state.DB_PATH_USER}/${state.uid}`, (user) => callback(user))
     },
-    async saveUser ({ state }, user) {
-      await saveData(`${state.DB_PATH_USER}/${state.uid}`, user)
+    saveUser ({ state }, user) {
+      saveData(`${state.DB_PATH_USER}/${state.uid}`, user)
+    },
+    findUsername ({ state }, { username, callback }) {
+      const listener = setListDataListen(
+        `${state.DB_PATH_USER_PUBLIC}`, 
+        (data) => {
+          callback(data)
+          off(listener)
+        }, 
+        {
+          order: `child`,
+          order_key: `username`,
+          filters: [
+            {
+              type: `equal`,
+              value: username
+            }
+          ]
+        }
+      )
     }
   },
   modules

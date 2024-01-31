@@ -14,8 +14,9 @@
         <span v-if="user" class="mr-3 truncate max-w-52" :title="user.ign">{{ user.ign }}</span>
 
         <div class="w-20">
-          <button v-if="!user" @click="onSignIn" class="bg-white w-full p-1 border rounded-lg">Sign In</button>
-          <button v-else @click="onSignOut" class="bg-white w-full p-1 border rounded-lg">Sign Out</button>
+          <!-- <button v-if="!user" @click="onSignIn" class="bg-white w-full p-1 border rounded-lg">Sign In</button>
+          <button v-else @click="onSignOut" class="bg-white w-full p-1 border rounded-lg">Sign Out</button> -->
+          <button v-if="user" @click="onSignOut" class="bg-white w-full p-1 border rounded-lg">Sign Out</button>
         </div>
       </div>
     </div>

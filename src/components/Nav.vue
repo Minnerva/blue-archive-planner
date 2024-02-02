@@ -5,7 +5,7 @@
         <img :src="Logo">
       </div>
       <div class="flex-1">
-        <span class="ml-3 text-xs">Version: 1.1</span>
+        <span class="ml-3 text-xs">Version: 1.1 {{ isDevMode ? `(Dev Mode)` : `` }}</span>
       </div>
       <!-- <div class="flex-1">
         Menu
@@ -30,6 +30,7 @@
   import Logo from '@/assets/logo.png'
 
   const store = useStore()
+  const isDevMode = !!process.env.FIREBASE_DATABASE_PREFIX
   const user = computed(() => store.state.user)
 
   const onSignIn = () => {

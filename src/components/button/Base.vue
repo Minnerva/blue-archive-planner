@@ -4,14 +4,20 @@
     :class="[getClasses()]"
     :type="submit ? `submit` : `button`"
     @click="onClick"
+    :disabled="loading || disabled"
   >
-    <slot></slot>
+    <Spinner v-if="loading" sm></Spinner>
+    <slot v-else></slot>
   </button>
 </template>
 
 <script setup>
+  import Spinner from '@/components/Spinner.vue'
+
   const props = defineProps({
     submit: Boolean,
+    loading: Boolean,
+    disabled: Boolean,
     primary: Boolean,
     danger: Boolean,
     onClick: Function

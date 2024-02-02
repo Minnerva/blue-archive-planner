@@ -41,7 +41,7 @@ export default createStore({
     saveUser ({ state }, user) {
       saveData(`${state.DB_PATH_USER}/${state.uid}`, user)
     },
-    findUsername ({ state }, { username, callback }) {
+    findUserPublic ({ state }, { key, value, callback }) {
       const listener = setListDataListen(
         `${state.DB_PATH_USER_PUBLIC}`, 
         (data) => {
@@ -50,15 +50,18 @@ export default createStore({
         }, 
         {
           order: `child`,
-          order_key: `username`,
+          order_key: key,
           filters: [
             {
               type: `equal`,
-              value: username
+              value: value
             }
           ]
         }
       )
+    },
+    saveUserPublic ({ state }, user) {
+      saveData(`${state.DB_PATH_USER_PUBLIC}/${state.uid}`, user)
     }
   },
   modules

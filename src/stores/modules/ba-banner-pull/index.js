@@ -1,3 +1,4 @@
+import { off } from 'firebase/database'
 import { find, saveData, setListDataListen } from '@/utils'
 import dataBanners from '@/data/banners.js'
 
@@ -40,7 +41,7 @@ export default {
     setGetUpcomingRecordsListen ({ state, rootState }, callback) {
       const { listGetUpcomingListener } = state
       if (listGetUpcomingListener) {
-        listGetUpcomingListener.off()
+        off(listGetUpcomingListener)
         state.listGetUpcomingListener = false
       }
 

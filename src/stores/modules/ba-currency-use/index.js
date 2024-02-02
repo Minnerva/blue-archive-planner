@@ -1,3 +1,4 @@
+import { off } from 'firebase/database'
 import { saveData, setListDataListen } from '@/utils'
 
 export default {
@@ -14,7 +15,7 @@ export default {
     setGetRecordsListen ({ state, rootState }, { year, month, callback }) {
       const { listGetListener } = state
       if (listGetListener) {
-        listGetListener.off()
+        off(listGetListener)
         state.listGetListener = false
       }
 

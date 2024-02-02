@@ -1,7 +1,7 @@
 import { createStore } from 'vuex'
+import { off } from 'firebase/database'
 import modules from './modules'
 import { getData, getDataListen, saveData, setListDataListen } from '@/utils'
-import { off } from 'firebase/database'
 
 export default createStore({
   state: {

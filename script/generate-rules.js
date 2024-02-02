@@ -15,6 +15,13 @@ const json = {
         ".write": "$uid === auth.uid",
       }
     },
+    "users-public": {
+      ".indexOn": ["matched_username", "matched_ign"],
+      ".read": true,
+      "$uid": {
+        ".write": "$uid === auth.uid"
+      }
+    },
     "ba-currency-own": {
       "$uid": {
         ".read": "$uid === auth.uid",

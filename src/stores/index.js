@@ -45,8 +45,8 @@ export default createStore({
       const listener = setListDataListen(
         `${state.DB_PATH_USER_PUBLIC}`, 
         (data) => {
-          callback(data)
           off(listener)
+          callback(data)
         }, 
         {
           order: `child`,

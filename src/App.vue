@@ -56,8 +56,11 @@
             updateUserData = {...user}
             updateUserData.last_signed_in_at = currentTime
           }
-
+          
           store.dispatch(`saveUser`, updateUserData)
+          store.dispatch(`saveUserPublic`, {
+            matched_ign: updateUserData.ign.toLocaleLowerCase()
+          })
         }
 
         // For some reason when user is null (new user just signed in, null data will run after the one with data)

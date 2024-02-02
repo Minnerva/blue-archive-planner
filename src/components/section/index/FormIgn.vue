@@ -38,7 +38,7 @@
           if (data !== null) {
             window.alert(`This discord or in game name has been taken.`)
           } else {
-            store.dispatch(`saveUser`, { ign })
+            store.dispatch(`saveUser`, { ...store.state.user, ign })
             store.dispatch(`saveUserPublic`, { matched_ign })
           }
 

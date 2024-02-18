@@ -1,11 +1,11 @@
 <template>
-  <div class="w-full h-14 bg-white shadow md:px-4 sm:px-6 px-4 sticky top-0 z-10">
+  <div class="w-full h-14 bg-white shadow md:px-4 sm:px-6 px-4 sticky top-0 z-50">
     <div class="flex h-full items-center">
       <div class="flex-none w-14 lg:w-24">
         <img :src="Logo">
       </div>
       <div class="flex-1">
-        <span class="ml-3 text-xs">Version: 1.1 {{ isDevMode ? `(Dev Mode)` : `` }}</span>
+        <span class="ml-3 text-xs">Version: 1.1.1 {{ isDevMode ? `(Dev Mode)` : `` }}</span>
       </div>
       <!-- <div class="flex-1">
         Menu

@@ -305,6 +305,43 @@ let students = [
   },
   {
     name: `Sena`
+  },
+  {
+    name: `Akari`,
+    alter: `New Year`
+  },
+  {
+    name: `Fuuka`,
+    alter: `New Year`
+  },
+  {
+    name: `Haruna`,
+    alter: `New Year`
+  },
+  {
+    name: `Hinata`
+  },
+  {
+    name: `Iori`
+  },
+  {
+    name: `Izuna`
+  },
+  {
+    name: `Mimori`
+  },
+  {
+    name: `Sakurako`
+  },
+  {
+    name: `Tsubaki`,
+    alter: `Guide`
+  },
+  {
+    name: `Ui`
+  },
+  {
+    name: `Umiko`
   }
 ]
 

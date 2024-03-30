@@ -5,7 +5,9 @@ export default [
     duration: 14,
     students: [
       `ichika`,
-      `kasumi`
+      `kasumi`,
+      `ako`,
+      `iori`
     ]
   },
   {

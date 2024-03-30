@@ -9,6 +9,15 @@ export default [
     ]
   },
   {
+    uuid: `be4f7788-cda0-4bc3-bfa2-b8de7a7c75cd`,
+    date: `2024-02-15`,
+    duration: 5,
+    students: [
+      `sumire`,
+      `eimi`
+    ]
+  },
+  {
     uuid: `7e1ad017-674d-4e9f-87a0-4dc0e257cd4b`,
     date: `2024-02-20`,
     duration: 7,

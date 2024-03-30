@@ -47,16 +47,7 @@ export default {
 
       state.listLatestListener = setListDataListen(
         `${state.DB_PATH_BA_BANNER_PULL}/${rootState.uid}`,
-        callback,
-        {
-          order: `key`,
-          filters: [
-            {
-              type: `startAt`,
-              value: `2023-12-00`
-            }
-          ]
-        }
+        callback
       )
     },
   }

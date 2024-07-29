@@ -418,6 +418,30 @@ let students = [
   {
     name: `Toki`,
     alter: `Bunny`
+  },
+  {
+    name: `Atsuko`,
+    alter: `Swimsuit`
+  },
+  {
+    name: `Hiyori`,
+    alter: `Swimsuit`
+  },
+  {
+    name: `Hoshino`,
+    alter: `Battle`
+  },
+  {
+    name: `Moe`,
+    alter: `Swimsuit`
+  },
+  {
+    name: `Saori`,
+    alter: `Swimsuit`
+  },
+  {
+    name: `Shiroko`,
+    alter: `Terror`
   }
 ]
 

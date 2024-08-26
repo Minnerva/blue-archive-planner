@@ -30,7 +30,7 @@ export default [
   {
     uuid: `602a8db7-19b2-4467-b4d8-763a85336b6b`,
     date: `2025-01-26`,
-    duration: 14,
+    duration: 9,
     students: [
       `saori-swimsuit`,
       `hiyori-swimsuit`

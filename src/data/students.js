@@ -462,6 +462,26 @@ let students = [
   },
   {
     name: `Miyu`
+  },
+  {
+    name: `Mari`,
+    alter: `Idol`
+  },
+  {
+    name: `Sakurako`,
+    alter: `Idol`
+  },
+  {
+    name: `Azusa`,
+    alter: `Swimsuit`
+  },
+  {
+    name: `Mashiro`,
+    alter: `Swimsuit`
+  },
+  {
+    name: `Hifumi`,
+    alter: `Swimsuit`
   }
 ]
 

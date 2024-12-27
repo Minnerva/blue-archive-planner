@@ -1,7 +1,7 @@
 export default [
   {
     uuid: `9473f475-c8a1-4b72-af42-f36e93f14f00`,
-    date: `2025-04-08`,
+    date: `2025-04-09`,
     duration: 7,
     students: [
       `azusa-swimsuit`,
@@ -11,14 +11,22 @@ export default [
     ]
   },
   {
-    uuid: `85dfc731-a640-44be-8e3a-e5860952766e`,
+    uuid: `24a1b325-b3a1-4ced-a324-5cb9704d392b`,
     date: `2025-04-15`,
     duration: 7,
     students: [
-      `mari-idol`,
-      `sakurako-idol`,
+      `yukari`,
       `renge`,
       `kikyou`
+    ]
+  },
+  {
+    uuid: `85dfc731-a640-44be-8e3a-e5860952766e`,
+    date: `2025-04-22`,
+    duration: 14,
+    students: [
+      `mari-idol`,
+      `sakurako-idol`
     ]
   }
 ]

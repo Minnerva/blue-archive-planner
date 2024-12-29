@@ -5,7 +5,7 @@
         <img :src="Logo">
       </div>
       <div class="flex-1">
-        <span class="ml-3 text-xs">Version: 1.1.8 {{ isDevMode ? `(Dev Mode)` : `` }}</span>
+        <span class="ml-3 text-xs">Version: 1.1.9 {{ isDevMode ? `(Dev Mode)` : `` }}</span>
       </div>
       <!-- <div class="flex-1">
         Menu

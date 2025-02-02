@@ -31,7 +31,7 @@ export default [
   },
   {
     uuid: `38c27814-df72-430d-b61d-bd3d9df58135`,
-    date: `2025-06-31`,
+    date: `2025-05-31`,
     duration: 7,
     students: [
       `kasumi`,

@@ -500,6 +500,24 @@ let students = [
   {
     name: `Yuuka`,
     alter: `Pajamas`
+  },
+  {
+    name: `Seia`
+  },
+  {
+    name: `Rio`
+  },
+  {
+    name: `Asuna`,
+    alter: `Uniform`
+  },
+  {
+    name: `Kirin`,
+    alter: `Uniform`
+  },
+  {
+    name: `Neru`,
+    alter: `Uniform`
   }
 ]
 

@@ -5,6 +5,7 @@ import Apr from './04'
 import May from './05'
 import Jun from './06'
 import Jul from './07'
+import Aug from './08'
 
 export default [
   ...Jan,
@@ -13,5 +14,6 @@ export default [
   ...Apr,
   ...May,
   ...Jun,
-  ...Jul
+  ...Jul,
+  ...Aug
 ]

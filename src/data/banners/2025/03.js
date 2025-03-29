@@ -1,8 +1,8 @@
 export default [
   {
     uuid: `d3bb9854-fc17-46da-a4fa-615c76d50fd5`,
-    date: `2025-03-08`,
-    duration: 14,
+    date: `2025-03-04`,
+    duration: 7,
     students: [
       `ui-swimsuit`,
       `hinata-swimsuit`,
@@ -12,7 +12,7 @@ export default [
   },
   {
     uuid: `324534a4-29bf-433b-a3af-411b124a235f`,
-    date: `2025-03-22`,
+    date: `2025-03-11`,
     duration: 7,
     students: [
       `neru-bunny`,
@@ -23,7 +23,7 @@ export default [
   },
   {
     uuid: `ac517ffb-acce-4e1d-9055-3770e8edbe99`,
-    date: `2025-03-29`,
+    date: `2025-03-18`,
     duration: 14,
     students: [
       `kisaki`,

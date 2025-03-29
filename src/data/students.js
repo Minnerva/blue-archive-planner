@@ -530,6 +530,17 @@ let students = [
   {
     name: `Juri`,
     alter: `Part Time Job`
+  },
+  {
+    name: `Rei`
+  },
+  {
+    name: `Izumi`,
+    alter: `New Year`
+  },
+  {
+    name: `Sumire`,
+    alter: `Part Time Job`
   }
 ]
 

@@ -341,6 +341,9 @@ let students = [
     name: `Ui`
   },
   {
+    name: `Umika`
+  },
+  {
     name: `Umiko`
   },
   {
@@ -554,6 +557,20 @@ let students = [
   {
     name: `Saori`,
     alter: `Dress`
+  },
+  {
+    name: `Pina`,
+    alter: `Guide`
+  },
+  {
+    name: `Niya`
+  },
+  {
+    name: `Nagusa`
+  },
+  {
+    name: `Natsu`,
+    alter: `Band`
   }
 ]
 

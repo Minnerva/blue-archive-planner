@@ -1,7 +1,7 @@
 export default [
   {
     uuid: `233f2410-7406-4c2a-a56a-6ad0f8a9f1cb`,
-    date: `2025-07-07`,
+    date: `2025-07-01`,
     duration: 7,
     students: [
       `aris-maid`,
@@ -12,7 +12,7 @@ export default [
   },
   {
     uuid: `2d807c48-2f00-4e79-a08a-b3d5cc5bd1e5`,
-    date: `2025-07-14`,
+    date: `2025-07-08`,
     duration: 7,
     students: [
       `seia`,
@@ -21,7 +21,7 @@ export default [
   },
   {
     uuid: `a2fad302-d6e5-4f18-9b8a-6009b8b9dc29`,
-    date: `2025-07-21`,
+    date: `2025-07-15`,
     duration: 7,
     students: [
       `neru-uniform`,
@@ -31,11 +31,21 @@ export default [
   },
   {
     uuid: `ccbf994c-1b71-4f14-906f-d002e90ccc19`,
-    date: `2025-07-28`,
+    date: `2025-07-22`,
     duration: 7,
     students: [
       `himari`,
       `eimi-swimsuit`
     ]
   },
+  {
+    uuid: `ecd66e4d-0ef9-47dc-9fd8-7b310401ec14`,
+    date: `2025-07-31`,
+    duration: 14,
+    students: [
+      `maki-camping`,
+      `hare-camping`,
+      `kotama-camping`
+    ]
+  }
 ]

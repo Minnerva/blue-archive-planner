@@ -8,6 +8,7 @@ import Jul from './07'
 import Aug from './08'
 import Sep from './09'
 import Oct from './10'
+import Nov from './11'
 
 export default [
   ...Jan,
@@ -19,5 +20,6 @@ export default [
   ...Jul,
   ...Aug,
   ...Sep,
-  ...Oct
+  ...Oct,
+  ...Nov
 ]

@@ -1,8 +1,9 @@
 import y2023 from './banners/2023'
 import y2024 from './banners/2024'
 import y2025 from './banners/2025'
+import y2026 from './banners/2026'
 
-const combined = [...y2023, ...y2024, ...y2025]
+const combined = [...y2023, ...y2024, ...y2025, ...y2026]
 const banners = []
 const temp_uuid = []
 

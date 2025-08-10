@@ -571,7 +571,31 @@ let students = [
   {
     name: `Natsu`,
     alter: `Band`
-  }
+  },
+  {
+    name: `Yukari`,
+    alter: `Swimsuit`
+  },
+  {
+    name: `Kikyou`,
+    alter: `Swimsuit`
+  },
+  {
+    name: `Hasumi`,
+    alter: `Swimsuit`
+  },
+  {
+    name: `Seia`,
+    alter: `Swimsuit`
+  },
+  {
+    name: `Nagisa`,
+    alter: `Swimsuit`
+  },
+  {
+    name: `Mika`,
+    alter: `Swimsuit`
+  },
 ]
 
 students = students.map(student => {
